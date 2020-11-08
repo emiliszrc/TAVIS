@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace LKOStest.Entities
 {
     [Table("Destinations")]
-    public class Destination
+    public class Destination : BaseEntity
     {
 
         [Key]
@@ -21,8 +21,5 @@ namespace LKOStest.Entities
         public string Longtitude { get; set; }
         
         public string Latitude { get; set; }
-
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime InsertDate { get; set; }
 }
 }

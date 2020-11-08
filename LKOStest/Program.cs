@@ -28,6 +28,27 @@ namespace LKOStest
 
     public class TripContext : DbContext
     {
+        public override int SaveChanges()
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is BaseEntity && (
+                    e.State == EntityState.Added
+                    || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                ((BaseEntity)entityEntry.Entity).UpdatedDate = DateTime.Now;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    ((BaseEntity)entityEntry.Entity).CreatedDate = DateTime.Now;
+                }
+            }
+
+            return base.SaveChanges();
+        }
+
         public TripContext()
         {
         }
@@ -39,5 +60,11 @@ namespace LKOStest
 
         public DbSet<Trip> Trips { get; set; }
         public DbSet<Destination> Points { get; set; }
+    }
+
+    public class BaseEntity
+    {
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

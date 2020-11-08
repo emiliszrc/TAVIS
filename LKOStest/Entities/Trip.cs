@@ -4,8 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LKOStest.Entities
 {
-    public class Trip
+    public class Trip : BaseEntity
     {
+        public Trip()
+        {
+            Destinations = new List<Destination>();
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }

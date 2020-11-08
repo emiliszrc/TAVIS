@@ -17,6 +17,8 @@
     <Compile Remove="Migrations\20201108003739_DestinationsToDestination.Designer.cs" />
     <Compile Remove="Migrations\20201108003809_DestinationsToDestination.cs" />
     <Compile Remove="Migrations\20201108003809_DestinationsToDestination.Designer.cs" />
+    <Compile Remove="Migrations\20201108020643_Check.cs" />
+    <Compile Remove="Migrations\20201108020643_Check.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

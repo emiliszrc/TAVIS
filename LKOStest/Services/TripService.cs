@@ -4,6 +4,7 @@ using LKOStest.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,6 +33,29 @@ namespace LKOStest.Services
                 .ToList();
         }
 
+        public Trip ReorderTripDestinations(string tripId, List<Destination> destinations)
+        {
+            var trip = tripContext.Trips.Where(trip => trip.Id == tripId)
+                .Include(i => i.Destinations)
+                .FirstOrDefault();
+
+            foreach (var destination in destinations)
+            {
+                foreach (var tripDestination in trip.Destinations)
+                {
+                    if (tripDestination.Id == destination.Id)
+                    {
+                        tripDestination.Index = destination.Index;
+                    }
+                }
+            }
+
+            tripContext.Trips.Update(trip);
+            tripContext.SaveChanges();
+
+            return GetTrip(tripId);
+        }
+
         public Trip CreateNewTrip(TripRequest tripRequest)
         {
             var trip = new Trip
@@ -55,6 +79,8 @@ namespace LKOStest.Services
             var trip = tripContext.Trips.Where(trip => trip.Id == tripId)
                 .Include(i => i.Destinations)
                 .FirstOrDefault();
+
+            destination.Index = trip.Destinations.Count.ToString();
 
             trip.Destinations.Add(destination);
 

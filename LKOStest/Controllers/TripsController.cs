@@ -1,4 +1,5 @@
-﻿using LKOStest.Dtos;
+﻿using System.Collections.Generic;
+using LKOStest.Dtos;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,15 @@ namespace LKOStest.Controllers
         public IActionResult AddDestinationToTrip(string tripId, [FromBody] Destination destination)
         {
             var trip = tripService.AddDestinationToTrip(tripId, destination);
+
+            return Ok(trip);
+        }
+
+        [HttpPost]
+        [Route("{tripId}/Destinations/Reorder")]
+        public IActionResult ReorderTripDestinations(string tripId, [FromBody] List<Destination> destinations)
+        {
+            var trip = tripService.ReorderTripDestinations(tripId, destinations);
 
             return Ok(trip);
         }

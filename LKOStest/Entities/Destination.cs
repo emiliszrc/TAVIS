@@ -16,6 +16,10 @@ namespace LKOStest.Entities
 
         public string Title { get; set; }
 
+        public string Type { get; set; }
+
+        public string Index { get; set; }
+
         public string Address { get; set; }
 
         public string Longtitude { get; set; }

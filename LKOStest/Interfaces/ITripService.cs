@@ -10,5 +10,6 @@ namespace LKOStest.Interfaces
         public Trip AddDestinationToTrip(string tripId, Destination destination);
         public Trip GetTrip(string tripId);
         public List<Trip> GetTrips();
+        public Trip ReorderTripDestinations(string tripId, List<Destination> destinations);
     }
 }

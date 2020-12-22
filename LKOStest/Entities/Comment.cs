@@ -13,6 +13,6 @@ namespace LKOStest.Entities
 
         public string DestinationIndex { get; set; }
 
-        public Review Review { get; set; }
+        public virtual Review Review { get; set; }
     }
 }

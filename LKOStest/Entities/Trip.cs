@@ -18,5 +18,7 @@ namespace LKOStest.Entities
         public string Title { get; set; }
 
         public virtual List<Destination> Destinations { get; set; }
+
+        public virtual User Creator { get; set; }
     }
 }

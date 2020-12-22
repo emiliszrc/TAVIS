@@ -80,5 +80,32 @@ namespace LKOStest.Controllers
 
             return Ok(review);
         }
+
+        [HttpDelete]
+        [Route("{tripId}/Reviews/{reviewId}/Comments/{commentId}")]
+        public IActionResult DeleteCommentFromReview(string reviewId, string commentId)
+        {
+            var review = reviewService.DeleteComment(reviewId, commentId);
+
+            return Ok(review);
+        }
+
+        [HttpGet]
+        [Route("{tripId}/Reviews/{reviewId}")]
+        public IActionResult GetReview(string reviewId)
+        {
+            var review = reviewService.GetReview(reviewId);
+
+            return Ok(review);
+        }
+
+        [HttpGet]
+        [Route("{tripId}/Reviews/")]
+        public IActionResult GetTripReviews(string tripId)
+        {
+            var reviews = reviewService.GetReviews(tripId);
+
+            return Ok(reviews);
+        }
     }
 }

@@ -64,5 +64,22 @@ namespace LKOStest.Services
         {
             return tripContext.Reviews.FirstOrDefault(r => r.Id == reviewId);
         }
+
+        public Review DeleteComment(string reviewId, string commentId)
+        {
+            var review = tripContext.Reviews.FirstOrDefault(r => r.Id == reviewId);
+            var comment = review.Comments.FirstOrDefault(c => c.Id == commentId);
+
+            review.Comments.Remove(comment);
+
+            tripContext.Reviews.Update(review);
+
+            return review;
+        }
+
+        public List<Review> GetReviews(string tripId)
+        {
+            return tripContext.Reviews.Where(r => r.Trip.Id == tripId).ToList();
+        }
     }
 }

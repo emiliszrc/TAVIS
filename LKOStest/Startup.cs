@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LKOStest.Controllers;
 using LKOStest.Interfaces;
 using LKOStest.Services;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +33,8 @@ namespace LKOStest
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ITripService, TripService>();
             services.AddScoped<IDistanceMatrixService, DistanceMatrixService>();
+            services.AddScoped<IOrganisationService, OrganisationService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddDbContext<TripContext>(item => item.UseSqlServer(Configuration.GetConnectionString("TripContext")));
         }
 

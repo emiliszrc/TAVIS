@@ -4,48 +4,22 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20201204140020_AddingUsers")]
+    partial class AddingUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.10")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("LKOStest.Entities.Comment", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DestinationIndex")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReviewId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewId");
-
-                    b.ToTable("Comments");
-                });
 
             modelBuilder.Entity("LKOStest.Entities.Destination", b =>
                 {
@@ -110,36 +84,6 @@ namespace LKOStest.Migrations
                     b.ToTable("Organisations");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Review", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ApprovalStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TripId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TripId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Reviews");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Trip", b =>
                 {
                     b.Property<string>("Id")
@@ -188,29 +132,11 @@ namespace LKOStest.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Comment", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Review", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("ReviewId");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Destination", b =>
                 {
                     b.HasOne("LKOStest.Entities.Trip", null)
                         .WithMany("Destinations")
                         .HasForeignKey("TripId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Review", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Trip", "Trip")
-                        .WithMany()
-                        .HasForeignKey("TripId");
-
-                    b.HasOne("LKOStest.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.User", b =>

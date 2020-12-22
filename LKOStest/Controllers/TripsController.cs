@@ -11,10 +11,12 @@ namespace LKOStest.Controllers
     public class TripsController : Controller
     {
         private ITripService tripService;
+        private IReviewService reviewService;
 
-        public TripsController(ITripService tripService)
+        public TripsController(ITripService tripService, IReviewService reviewService)
         {
             this.tripService = tripService;
+            this.reviewService = reviewService;
         }
 
         [HttpPost]
@@ -59,6 +61,24 @@ namespace LKOStest.Controllers
             var trip = tripService.ReorderTripDestinations(tripId, destinations);
 
             return Ok(trip);
+        }
+
+        [HttpPost]
+        [Route("{tripId}/Reviews")]
+        public IActionResult AddReviewToTrip([FromBody] ReviewRequest reviewRequest)
+        {
+            var review = reviewService.AddReviewToTrip(reviewRequest);
+
+            return Ok(review);
+        }
+
+        [HttpPost]
+        [Route("{tripId}/Reviews/{reviewId}/Comments")]
+        public IActionResult AddCommentToReview([FromBody] CommentRequest commentRequest)
+        {
+            var review = reviewService.AddCommentToTrip(commentRequest);
+
+            return Ok(review);
         }
     }
 }

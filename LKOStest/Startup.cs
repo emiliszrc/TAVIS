@@ -35,6 +35,7 @@ namespace LKOStest
             services.AddScoped<IDistanceMatrixService, DistanceMatrixService>();
             services.AddScoped<IOrganisationService, OrganisationService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IReviewService, ReviewService>();
             services.AddDbContext<TripContext>(item => item.UseSqlServer(Configuration.GetConnectionString("TripContext")));
         }
 

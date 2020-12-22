@@ -12,5 +12,7 @@ namespace LKOStest.Entities
         public string Text { get; set; }
 
         public string DestinationIndex { get; set; }
+
+        public Review Review { get; set; }
     }
 }

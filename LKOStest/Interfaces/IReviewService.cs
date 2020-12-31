@@ -16,6 +16,6 @@ namespace LKOStest.Interfaces
         Review GetReview(string reviewId);
 
         Review DeleteComment(string reviewId, string commentId);
-        List<Review> GetReviews(string tripId);
+        List<Review> GetReviews(string tripId, string userId = null);
     }
 }

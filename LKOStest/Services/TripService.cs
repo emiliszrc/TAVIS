@@ -30,6 +30,7 @@ namespace LKOStest.Services
         {
             return tripContext.Trips
                 .Include(i => i.Destinations)
+                .Include(i => i.Creator)
                 .ToList();
         }
 
@@ -58,10 +59,13 @@ namespace LKOStest.Services
 
         public Trip CreateNewTrip(TripRequest tripRequest)
         {
+            var creator = tripContext.Users.FirstOrDefault(u => u.Id == tripRequest.CreatorId); 
+
             var trip = new Trip
             {
                 Title = tripRequest.Title,
-                Destinations = new List<Destination> { }
+                Destinations = new List<Destination>(),
+                Creator = creator
             };
 
             tripContext.Trips.Add(trip);

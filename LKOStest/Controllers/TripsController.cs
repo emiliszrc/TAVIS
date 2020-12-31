@@ -107,5 +107,14 @@ namespace LKOStest.Controllers
 
             return Ok(reviews);
         }
+
+        [HttpGet]
+        [Route("{tripId}/Reviews/ByUser")]
+        public IActionResult GetTripReviewsByUserId(string tripId, [FromQuery] string userId)
+        {
+            var reviews = reviewService.GetReviews(tripId, userId);
+
+            return Ok(reviews);
+        }
     }
 }

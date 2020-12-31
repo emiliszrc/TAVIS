@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LKOStest.Controllers;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace LKOStest.Services
 {
@@ -36,7 +37,7 @@ namespace LKOStest.Services
                 throw new Exception("Failed to save review data");
             }
 
-            return new Review();
+            return GetReview(review.Id);
         }
 
         public Review AddCommentToTrip(CommentRequest commentRequest)
@@ -62,7 +63,9 @@ namespace LKOStest.Services
 
         public Review GetReview(string reviewId)
         {
-            return tripContext.Reviews.FirstOrDefault(r => r.Id == reviewId);
+            return tripContext.Reviews
+                .Include(r => r.Comments)
+                .FirstOrDefault(r => r.Id == reviewId);
         }
 
         public Review DeleteComment(string reviewId, string commentId)
@@ -77,9 +80,11 @@ namespace LKOStest.Services
             return review;
         }
 
-        public List<Review> GetReviews(string tripId)
+        public List<Review> GetReviews(string tripId, string userId = null)
         {
-            return tripContext.Reviews.Where(r => r.Trip.Id == tripId).ToList();
+            return userId != null 
+                ? tripContext.Reviews.Include(r=>r.Comments).Where(r => r.Trip.Id == tripId && r.User.Id == userId).ToList() 
+                : tripContext.Reviews.Include(r=>r.Comments).Where(r => r.Trip.Id == tripId).ToList();
         }
     }
 }

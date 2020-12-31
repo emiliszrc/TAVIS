@@ -28,7 +28,7 @@ namespace LKOStest.Services
         public User GetUserBy(string username)
         {
             return tripContext.Users
-                .FirstOrDefault(user => user.Id == username);
+                .FirstOrDefault(user => user.Username == username);
         }
 
         public User CreateUser(UserRequest user)
@@ -44,7 +44,7 @@ namespace LKOStest.Services
         public User Login(string username, string password)
         {
             var user = GetUserBy(username);
-            if (user.Password == password && user.Username == username)
+            if (user != null && user.Password == password && user.Username == username)
             {
                 return user;
             }

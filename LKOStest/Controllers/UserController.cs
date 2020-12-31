@@ -21,10 +21,10 @@ namespace LKOStest.Controllers
         }
 
         [HttpGet]
-        [Route("{userId}")]
-        public User Get(string userId)
+        [Route("{username}")]
+        public User GetByUsername(string username)
         {
-            return userService.GetUserBy(userId);
+            return userService.GetUserBy(username);
         }
 
         [HttpPost]

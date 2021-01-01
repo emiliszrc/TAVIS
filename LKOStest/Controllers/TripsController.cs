@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LKOStest.Dtos;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
+using LKOStest.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LKOStest.Controllers
@@ -47,16 +49,16 @@ namespace LKOStest.Controllers
 
         [HttpPost]
         [Route("{tripId}/Destinations")]
-        public IActionResult AddDestinationToTrip(string tripId, [FromBody] Destination destination)
+        public IActionResult AddDestinationToTrip([FromBody] VisitRequest visitRequest)
         {
-            var trip = tripService.AddDestinationToTrip(tripId, destination);
+            var trip = tripService.AddDestinationToTrip(visitRequest);
 
             return Ok(trip);
         }
 
         [HttpPost]
         [Route("{tripId}/Destinations/Reorder")]
-        public IActionResult ReorderTripDestinations(string tripId, [FromBody] List<Destination> destinations)
+        public IActionResult ReorderTripDestinations(string tripId, [FromBody] List<Location> destinations)
         {
             var trip = tripService.ReorderTripDestinations(tripId, destinations);
 
@@ -112,9 +114,16 @@ namespace LKOStest.Controllers
         [Route("{tripId}/Reviews/ByUser")]
         public IActionResult GetTripReviewsByUserId(string tripId, [FromQuery] string userId)
         {
-            var reviews = reviewService.GetReviews(tripId, userId);
+            try
+            {
+                var reviews = reviewService.GetReviews(tripId, userId);
 
-            return Ok(reviews);
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

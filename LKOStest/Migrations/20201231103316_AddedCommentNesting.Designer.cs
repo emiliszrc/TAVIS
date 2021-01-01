@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20201231103316_AddedCommentNesting")]
+    partial class AddedCommentNesting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,8 +30,8 @@ namespace LKOStest.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("LocationId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("DestinationIndex")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ParentCommentId")
                         .HasColumnType("nvarchar(450)");
@@ -45,8 +47,6 @@ namespace LKOStest.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
-
                     b.HasIndex("ParentCommentId");
 
                     b.HasIndex("ReviewId");
@@ -54,7 +54,7 @@ namespace LKOStest.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Location", b =>
+            modelBuilder.Entity("LKOStest.Entities.Destination", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -81,6 +81,9 @@ namespace LKOStest.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TripId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
@@ -89,7 +92,9 @@ namespace LKOStest.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations");
+                    b.HasIndex("TripId");
+
+                    b.ToTable("Destinations");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Organisation", b =>
@@ -195,55 +200,22 @@ namespace LKOStest.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Visit", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("Arrival")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Departure")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LocationId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("TripId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisitationIndex")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("TripId");
-
-                    b.ToTable("Visits");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Comment", b =>
                 {
-                    b.HasOne("LKOStest.Entities.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId");
-
                     b.HasOne("LKOStest.Entities.Comment", "ParentComment")
-                        .WithMany("ChildComments")
+                        .WithMany()
                         .HasForeignKey("ParentCommentId");
 
                     b.HasOne("LKOStest.Entities.Review", "Review")
                         .WithMany("Comments")
                         .HasForeignKey("ReviewId");
+                });
+
+            modelBuilder.Entity("LKOStest.Entities.Destination", b =>
+                {
+                    b.HasOne("LKOStest.Entities.Trip", null)
+                        .WithMany("Destinations")
+                        .HasForeignKey("TripId");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Review", b =>
@@ -269,17 +241,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.Organisation", null)
                         .WithMany("Users")
                         .HasForeignKey("OrganisationId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Visit", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Location", "Location")
-                        .WithMany("Visits")
-                        .HasForeignKey("LocationId");
-
-                    b.HasOne("LKOStest.Entities.Trip", "Trip")
-                        .WithMany("Visits")
-                        .HasForeignKey("TripId");
                 });
 #pragma warning restore 612, 618
         }

@@ -22,31 +22,31 @@ namespace LKOStest.Services
         public Trip GetTrip(string tripId)
         {
             return tripContext.Trips.Where(trip => trip.Id == tripId)
-                .Include(i => i.Destinations)
+                .Include(i => i.Visits)
                 .FirstOrDefault();
         }
 
         public List<Trip> GetTrips()
         {
             return tripContext.Trips
-                .Include(i => i.Destinations)
+                .Include(i => i.Visits)
                 .Include(i => i.Creator)
                 .ToList();
         }
 
-        public Trip ReorderTripDestinations(string tripId, List<Destination> destinations)
+        public Trip ReorderTripDestinations(string tripId, List<Location> destinations)
         {
             var trip = tripContext.Trips.Where(trip => trip.Id == tripId)
-                .Include(i => i.Destinations)
+                .Include(i => i.Visits)
                 .FirstOrDefault();
 
             foreach (var destination in destinations)
             {
-                foreach (var tripDestination in trip.Destinations)
+                foreach (var visit in trip.Visits)
                 {
-                    if (tripDestination.Id == destination.Id)
+                    if (visit.Id == destination.Id)
                     {
-                        tripDestination.Index = destination.Index;
+                        visit.VisitationIndex = destination.Index;
                     }
                 }
             }
@@ -64,7 +64,7 @@ namespace LKOStest.Services
             var trip = new Trip
             {
                 Title = tripRequest.Title,
-                Destinations = new List<Destination>(),
+                Visits = new List<Visit>(),
                 Creator = creator
             };
 
@@ -78,20 +78,38 @@ namespace LKOStest.Services
             return trip;
         }
 
-        public Trip AddDestinationToTrip(string tripId, Destination destination)
+        public Trip AddDestinationToTrip(VisitRequest visitRequest)
         {
-            var trip = tripContext.Trips.Where(trip => trip.Id == tripId)
-                .Include(i => i.Destinations)
+            var trip = tripContext.Trips.Where(trip => trip.Id == visitRequest.TripId)
+                .Include(i => i.Visits)
                 .FirstOrDefault();
 
-            destination.Index = trip.Destinations.Count.ToString();
+            visitRequest.VisitationIndex = trip.Visits.Count.ToString();
 
-            trip.Destinations.Add(destination);
+            var visit = new Visit
+            {
+                Arrival = visitRequest.Arrival,
+                Departure = visitRequest.Departure,
+                Location = tripContext.Locations.FirstOrDefault(l => l.Id == visitRequest.LocationId),
+                Trip = trip,
+                VisitationIndex = visitRequest.VisitationIndex
+            };
+
+            trip.Visits.Add(visit);
 
             tripContext.Trips.Update(trip);
             tripContext.SaveChanges();
 
-            return GetTrip(tripId);
+            return GetTrip(visitRequest.TripId);
         }
+    }
+
+    public class VisitRequest
+    {
+        public string TripId { get; set; }
+        public string LocationId { get; set; }
+        public string VisitationIndex { get; set; }
+        public DateTime Arrival { get; set; }
+        public DateTime Departure { get; set; }
     }
 }

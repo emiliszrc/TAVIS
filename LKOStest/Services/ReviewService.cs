@@ -43,11 +43,14 @@ namespace LKOStest.Services
         public Review AddCommentToTrip(CommentRequest commentRequest)
         {
             var review = tripContext.Reviews.FirstOrDefault(r => r.Id == commentRequest.ReviewId);
+            var parentComment = tripContext.Comments.FirstOrDefault(c => c.Id == commentRequest.ParentCommentId);
+            var destination = tripContext.Locations.FirstOrDefault(d => d.Id == commentRequest.DestinationId);
 
             var comment = new Comment()
             {
-                DestinationIndex = commentRequest.DestinationIndex,
+                Location = destination,
                 Text = commentRequest.Text,
+                ParentComment = parentComment,
                 Review = review
             };
 
@@ -82,9 +85,20 @@ namespace LKOStest.Services
 
         public List<Review> GetReviews(string tripId, string userId = null)
         {
-            return userId != null 
-                ? tripContext.Reviews.Include(r=>r.Comments).Where(r => r.Trip.Id == tripId && r.User.Id == userId).ToList() 
-                : tripContext.Reviews.Include(r=>r.Comments).Where(r => r.Trip.Id == tripId).ToList();
+            var reviews =  userId != null 
+                ? tripContext.Reviews.Include(r=>r.Comments)
+                    .Include(r => r.User)
+                    .Where(r => r.Trip.Id == tripId && r.User.Id == userId)
+                    .ToList() 
+                : tripContext.Reviews
+                    .Include(r=>r.Comments)
+                    .Include(r => r.User)
+                    .Where(r => r.Trip.Id == tripId)
+                    .ToList();
+
+            reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
+
+            return reviews;
         }
     }
 }

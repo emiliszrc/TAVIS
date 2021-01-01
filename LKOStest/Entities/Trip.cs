@@ -8,7 +8,7 @@ namespace LKOStest.Entities
     {
         public Trip()
         {
-            Destinations = new List<Destination>();
+            Visits = new List<Visit>();
         }
 
         [Key]
@@ -17,7 +17,7 @@ namespace LKOStest.Entities
 
         public string Title { get; set; }
 
-        public virtual List<Destination> Destinations { get; set; }
+        public virtual List<Visit> Visits { get; set; }
 
         public virtual User Creator { get; set; }
     }

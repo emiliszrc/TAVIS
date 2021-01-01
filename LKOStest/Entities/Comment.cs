@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LKOStest.Entities
@@ -11,8 +12,12 @@ namespace LKOStest.Entities
 
         public string Text { get; set; }
 
-        public string DestinationIndex { get; set; }
+        public Location Location { get; set; }
 
-        public virtual Review Review { get; set; }
+        public Comment ParentComment { get; set; }
+
+        public Review Review { get; set; }
+
+        public virtual List<Comment> ChildComments { get; set; }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LKOStest.Entities
 {
-    [Table("Destinations")]
-    public class Destination : BaseEntity
+    [Table("Locations")]
+    public class Location : BaseEntity
     {
 
         [Key]
@@ -25,5 +26,7 @@ namespace LKOStest.Entities
         public string Longtitude { get; set; }
         
         public string Latitude { get; set; }
-}
+
+        public virtual List<Visit> Visits { get; set; }
+    }
 }

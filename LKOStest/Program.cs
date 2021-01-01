@@ -59,7 +59,8 @@ namespace LKOStest
         }
 
         public DbSet<Trip> Trips { get; set; }
-        public DbSet<Destination> Destinations { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<Visit> Visits { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Organisation> Organisations { get; set; }
         public DbSet<Review> Reviews { get; set; }

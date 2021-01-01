@@ -42,13 +42,20 @@ namespace LKOStest.Controllers
         [Route("all")]
         public IActionResult GetAllTrips()
         {
-            var createdTrip = tripService.GetTrips();
+            try
+            {
+                var createdTrip = tripService.GetTrips();
 
-            return Ok(createdTrip);
+                return Ok(createdTrip);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpPost]
-        [Route("{tripId}/Destinations")]
+        [Route("{tripId}/Visits")]
         public IActionResult AddDestinationToTrip([FromBody] VisitRequest visitRequest)
         {
             var trip = tripService.AddDestinationToTrip(visitRequest);
@@ -57,8 +64,17 @@ namespace LKOStest.Controllers
         }
 
         [HttpPost]
+        [Route("Locations")]
+        public IActionResult AddLocation(string tripId, [FromBody] LocationRequest locationRequest)
+        {
+            var trip = tripService.AddLocation(tripId, locationRequest);
+
+            return Ok(trip);
+        }
+
+        [HttpPost]
         [Route("{tripId}/Destinations/Reorder")]
-        public IActionResult ReorderTripDestinations(string tripId, [FromBody] List<Location> destinations)
+        public IActionResult ReorderTripDestinations(string tripId, [FromBody] List<Visit> destinations)
         {
             var trip = tripService.ReorderTripDestinations(tripId, destinations);
 

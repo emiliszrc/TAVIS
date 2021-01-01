@@ -23,30 +23,32 @@ namespace LKOStest.Services
         {
             return tripContext.Trips.Where(trip => trip.Id == tripId)
                 .Include(i => i.Visits)
+                .ThenInclude(v=>v.Location)
+                .Include(i=>i.Creator)
                 .FirstOrDefault();
         }
 
         public List<Trip> GetTrips()
         {
             return tripContext.Trips
-                .Include(i => i.Visits)
+                .Include(i => i.Visits).ThenInclude(v=> v.Location)
                 .Include(i => i.Creator)
                 .ToList();
         }
 
-        public Trip ReorderTripDestinations(string tripId, List<Location> destinations)
+        public Trip ReorderTripDestinations(string tripId, List<Visit> visitRequests)
         {
             var trip = tripContext.Trips.Where(trip => trip.Id == tripId)
                 .Include(i => i.Visits)
                 .FirstOrDefault();
 
-            foreach (var destination in destinations)
+            foreach (var visitRequest in visitRequests)
             {
                 foreach (var visit in trip.Visits)
                 {
-                    if (visit.Id == destination.Id)
+                    if (visit.Id == visitRequest.Id)
                     {
-                        visit.VisitationIndex = destination.Index;
+                        visit.VisitationIndex = visitRequest.VisitationIndex;
                     }
                 }
             }
@@ -55,6 +57,25 @@ namespace LKOStest.Services
             tripContext.SaveChanges();
 
             return GetTrip(tripId);
+        }
+
+        public Location AddLocation(string tripId, LocationRequest locationRequest)
+        {
+            var location = new Location
+            {
+                Address = locationRequest.Address,
+                Latitude = locationRequest.Latitude,
+                Longtitude = locationRequest.Longtitude,
+                LocationId = locationRequest.LocationId,
+                Title = locationRequest.Title,
+                Type = locationRequest.Type
+            };
+
+            tripContext.Locations.Add(location);
+
+            tripContext.SaveChanges();
+
+            return tripContext.Locations.FirstOrDefault(l=> l.Id == location.Id);
         }
 
         public Trip CreateNewTrip(TripRequest tripRequest)
@@ -104,12 +125,20 @@ namespace LKOStest.Services
         }
     }
 
-    public class VisitRequest
+    public class LocationRequest
     {
-        public string TripId { get; set; }
         public string LocationId { get; set; }
-        public string VisitationIndex { get; set; }
-        public DateTime Arrival { get; set; }
-        public DateTime Departure { get; set; }
+
+        public string Title { get; set; }
+
+        public string Type { get; set; }
+
+        public string Index { get; set; }
+
+        public string Address { get; set; }
+
+        public string Longtitude { get; set; }
+
+        public string Latitude { get; set; }
     }
 }

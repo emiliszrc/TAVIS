@@ -44,11 +44,11 @@ namespace LKOStest.Services
         {
             var review = tripContext.Reviews.FirstOrDefault(r => r.Id == commentRequest.ReviewId);
             var parentComment = tripContext.Comments.FirstOrDefault(c => c.Id == commentRequest.ParentCommentId);
-            var destination = tripContext.Locations.FirstOrDefault(d => d.Id == commentRequest.DestinationId);
+            var visit = tripContext.Visits.FirstOrDefault(d => d.Id == commentRequest.VisitId);
 
             var comment = new Comment()
             {
-                Location = destination,
+                Visit = visit,
                 Text = commentRequest.Text,
                 ParentComment = parentComment,
                 Review = review
@@ -68,6 +68,7 @@ namespace LKOStest.Services
         {
             return tripContext.Reviews
                 .Include(r => r.Comments)
+                .ThenInclude(c=>c.Visit)
                 .FirstOrDefault(r => r.Id == reviewId);
         }
 
@@ -86,12 +87,15 @@ namespace LKOStest.Services
         public List<Review> GetReviews(string tripId, string userId = null)
         {
             var reviews =  userId != null 
-                ? tripContext.Reviews.Include(r=>r.Comments)
+                ? tripContext.Reviews
+                    .Include(r=>r.Comments)
+                    .ThenInclude(c => c.Visit)
                     .Include(r => r.User)
                     .Where(r => r.Trip.Id == tripId && r.User.Id == userId)
                     .ToList() 
                 : tripContext.Reviews
                     .Include(r=>r.Comments)
+                    .ThenInclude(c => c.Visit)
                     .Include(r => r.User)
                     .Where(r => r.Trip.Id == tripId)
                     .ToList();

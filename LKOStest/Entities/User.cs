@@ -28,5 +28,7 @@ namespace LKOStest.Entities
                 Password = user.Password
             };
         }
+
+        public Organisation Organisation { get; set; }
     }
 }

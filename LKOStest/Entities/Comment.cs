@@ -12,7 +12,7 @@ namespace LKOStest.Entities
 
         public string Text { get; set; }
 
-        public Location Location { get; set; }
+        public Visit Visit { get; set; }
 
         public Comment ParentComment { get; set; }
 

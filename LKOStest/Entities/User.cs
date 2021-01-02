@@ -20,12 +20,18 @@ namespace LKOStest.Entities
 
         public string Password { get; set; }
 
+        public string Name { get; set; }
+
+        public string Surname { get; set; }
+
         public static User From(UserRequest user)
         {
             return new User
             {
                 Username = user.Username,
-                Password = user.Password
+                Password = user.Password,
+                Name = user.Name,
+                Surname = user.Surname
             };
         }
 

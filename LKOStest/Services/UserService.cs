@@ -34,11 +34,12 @@ namespace LKOStest.Services
         public User CreateUser(UserRequest user)
         {
             var userMapped = User.From(user);
+            userMapped.Organisation = tripContext.Organisations
+                .FirstOrDefault(organisation => organisation.Id == user.OrganisationId);
 
             tripContext.Users.Add(userMapped);
-            tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == user.OrganisationId).Users.Add(userMapped);
             tripContext.SaveChanges();
-            return User.From(user);
+            return GetUserBy(int.Parse(userMapped.Id));
         }
 
         public User Login(string username, string password)

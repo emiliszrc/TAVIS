@@ -13,5 +13,6 @@ namespace LKOStest.Interfaces
         public List<Trip> GetTrips();
         public Trip ReorderTripDestinations(string tripId, List<Visit> destinations);
         public Location AddLocation(string tripId, LocationRequest locationRequest);
+        public void RemoveVisitFromTrip(string tripId, string visitId);
     }
 }

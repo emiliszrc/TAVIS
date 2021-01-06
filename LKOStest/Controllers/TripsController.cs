@@ -63,6 +63,15 @@ namespace LKOStest.Controllers
             return Ok(trip);
         }
 
+        [HttpDelete]
+        [Route("{tripId}/Visits/{visitId}")]
+        public IActionResult AddDestinationToTrip(string tripId, string visitId)
+        {
+            tripService.RemoveVisitFromTrip(tripId, visitId);
+
+            return Ok();
+        }
+
         [HttpPost]
         [Route("Locations")]
         public IActionResult AddLocation(string tripId, [FromBody] LocationRequest locationRequest)

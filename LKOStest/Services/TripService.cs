@@ -78,6 +78,13 @@ namespace LKOStest.Services
             return tripContext.Locations.FirstOrDefault(l=> l.Id == location.Id);
         }
 
+        public void RemoveVisitFromTrip(string tripId, string visitId)
+        {
+            var visit = tripContext.Visits.FirstOrDefault(v => v.Id == visitId);
+            tripContext.Trips.FirstOrDefault(t => t.Id == tripId).Visits.Remove(visit);
+            tripContext.SaveChanges();
+        }
+
         public Trip CreateNewTrip(TripRequest tripRequest)
         {
             var creator = tripContext.Users.FirstOrDefault(u => u.Id == tripRequest.CreatorId); 

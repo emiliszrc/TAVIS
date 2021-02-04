@@ -35,6 +35,6 @@ namespace LKOStest.Entities
             };
         }
 
-        public Organisation Organisation { get; set; }
+        public virtual List<Contract> Contracts { get; set; }
     }
 }

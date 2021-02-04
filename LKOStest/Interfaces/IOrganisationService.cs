@@ -6,9 +6,9 @@ namespace LKOStest.Controllers
     public interface IOrganisationService
     {
         Organisation GetOrganisationBy(string organisationId);
-        void CreateNew(Organisation organisation);
-        void AddUserToOrganisation(string organisationId, string userId);
-        void RemoveUserFromOrganisation(string organisationId, string userId);
+        Organisation CreateNew(Organisation organisation);
+        Organisation AddUserToOrganisation(string organisationId, string userId);
+        Organisation RemoveUserFromOrganisation(string organisationId, string userId);
         List<Organisation> GetOrganisations();
     }
 }

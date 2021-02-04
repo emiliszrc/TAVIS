@@ -7,19 +7,12 @@ using System.Threading.Tasks;
 
 namespace LKOStest.Entities
 {
-    public class Organisation : BaseEntity
+    public class Contract : BaseEntity
     {
-        public Organisation()
-        {
-            Contracts = new List<Contract>();
-        }
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
-
-        public string Title { get; set; }
-
-        public virtual List<Contract> Contracts { get; set; }
+        public User User { get; set; }
+        public Organisation Organisation { get; set; }
     }
 }

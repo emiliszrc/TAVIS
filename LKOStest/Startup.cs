@@ -31,6 +31,7 @@ namespace LKOStest
         {
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<ITripService, TripService>();
             services.AddScoped<IDistanceMatrixService, DistanceMatrixService>();

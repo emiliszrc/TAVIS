@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LKOStest.Controllers;
 using LKOStest.Entities;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LKOStest.Services
 {
@@ -18,33 +19,97 @@ namespace LKOStest.Services
 
         public List<Organisation> GetOrganisations()
         {
-            return tripContext.Organisations.ToList();
+            var organisations = tripContext.Organisations.ToList();
+
+            if (!organisations.Any())
+            {
+                throw new NotFoundException();
+            }
+
+            return organisations;
+
         }
 
         public Organisation GetOrganisationBy(string organisationId)
         {
-            return tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == organisationId);
+            var organisation = tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == organisationId);
+
+            if (organisation == null)
+            {
+                throw new NotFoundException();
+            }
+
+            return organisation;
         }
 
 
-        public void CreateNew(Organisation organisation)
+        public Organisation CreateNew(Organisation organisation)
         {
             tripContext.Organisations.Add(organisation);
-            tripContext.SaveChanges();
+
+            if (tripContext.SaveChanges() == 0)
+            {
+                throw new Exception("Failed to create new organisation");
+            }
+
+            return organisation;
         }
 
-        public void AddUserToOrganisation(string organisationId, string userId)
+        public Organisation AddUserToOrganisation(string organisationId, string userId)
         {
-            var user = tripContext.Users.FirstOrDefault(user => user.Id == userId);
-            tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == organisationId)?.Users.Add(user);
-            tripContext.SaveChanges();
+            var user = tripContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new NotFoundException(nameof(user) + " was not found");
+            }
+
+            var organisation = tripContext.Organisations.FirstOrDefault(o => o.Id == organisationId);
+            if (organisation == null)
+            {
+                throw new NotFoundException(nameof(organisation) + " was not found");
+            }
+
+            var existingContract = tripContext.Contracts
+                .FirstOrDefault(c => c.User.Id == userId && c.Organisation.Id == organisationId);
+            if (existingContract != null)
+            {
+                throw new ObjectAlreadyExists();
+            }
+
+            var contract = new Contract
+            {
+                User = user,
+                Organisation = organisation
+            };
+
+            tripContext.Contracts.Add(contract);
+            if (tripContext.SaveChanges() == 0)
+            {
+                throw new Exception("Failed to add user to organisation");
+            }
+
+            return GetOrganisationBy(organisationId);
         }
 
-        public void RemoveUserFromOrganisation(string organisationId, string userId)
+        public Organisation RemoveUserFromOrganisation(string organisationId, string userId)
         {
-            var user = tripContext.Users.FirstOrDefault(user => user.Id == userId);
-            tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == organisationId).Users.Remove(user);
-            tripContext.SaveChanges();
+            var contract = tripContext
+                .Contracts
+                .FirstOrDefault(c => c.Organisation.Id == organisationId
+                                     && c.User.Id == userId);
+
+            if (contract == null)
+            {
+                throw new NotFoundException();
+            }
+
+            tripContext.Contracts.Remove(contract);
+            if (tripContext.SaveChanges() == 0)
+            {
+                throw new Exception("Failed to remove user from organisation");
+            }
+
+            return GetOrganisationBy(organisationId);
         }
     }
 }

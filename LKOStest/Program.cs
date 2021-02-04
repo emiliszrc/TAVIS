@@ -63,6 +63,7 @@ namespace LKOStest
         public DbSet<Visit> Visits { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Organisation> Organisations { get; set; }
+        public DbSet<Contract> Contracts { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Approval> Approvals { get; set; }

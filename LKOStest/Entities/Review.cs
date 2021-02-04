@@ -21,11 +21,11 @@ namespace LKOStest.Entities
 
         public Trip Trip { get; set; }
 
-        public User User { get; set; }
-
         public string ApprovalStatus { get; set; }
 
         public virtual List<Comment> Comments { get; set; } 
+
+        public virtual List<User> Reviewers { get; set; }
 
         public virtual List<Approval>  Approvals { get; set; }
     }

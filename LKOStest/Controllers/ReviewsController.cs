@@ -51,18 +51,12 @@ namespace LKOStest.Controllers
         }
 
         [HttpPost]
-        [Route("{reviewId}")]
+        [Route("{reviewId}/Status")]
         public IActionResult PostStatus([FromBody] ReviewStatusRequest request)
         {
             var review = reviewService.PostReviewStatus(request);
 
             return Ok(review);
         }
-    }
-
-    public class ReviewStatusRequest
-    {
-        public string CreatorId { get; set; }
-        public string ReviewStatus { get; set; }
     }
 }

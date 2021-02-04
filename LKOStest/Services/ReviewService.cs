@@ -26,8 +26,7 @@ namespace LKOStest.Services
             var review = new Review()
             {
                 ApprovalStatus = reviewRequest.ApprovalStatus,
-                Trip = trip,
-                User = user
+                Trip = trip
             };
 
             tripContext.Reviews.Add(review);
@@ -72,6 +71,8 @@ namespace LKOStest.Services
             return tripContext.Reviews
                 .Include(r => r.Comments)
                 .ThenInclude(c=>c.Visit)
+                .Include(a => a.Approvals)
+                .ThenInclude(u => u.User)
                 .FirstOrDefault(r => r.Id == reviewId);
         }
 
@@ -93,14 +94,18 @@ namespace LKOStest.Services
                 ? tripContext.Reviews
                     .Include(r=>r.Comments)
                     .ThenInclude(c => c.Visit)
-                    .Include(r => r.User)
-                    .Where(r => r.Trip.Id == tripId && r.User.Id == userId)
+                    .Include(a => a.Approvals)
+                    .ThenInclude(u => u.User)
+                    .Include(t=> t.Reviewers)
+                    .Where(t=>t.Id == tripId)
                     .ToList() 
                 : tripContext.Reviews
                     .Include(r=>r.Comments)
                     .ThenInclude(c => c.Visit)
-                    .Include(r => r.User)
                     .Where(r => r.Trip.Id == tripId)
+                    .Include(a => a.Approvals)
+                    .ThenInclude(u => u.User)
+                    .Include(t => t.Reviewers)
                     .ToList();
 
             reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
@@ -110,7 +115,24 @@ namespace LKOStest.Services
 
         public Review PostReviewStatus(ReviewStatusRequest request)
         {
-            throw new NotImplementedException();
+            var review = tripContext.Reviews.FirstOrDefault(r => r.Id == request.ReviewId);
+            var user = tripContext.Users.FirstOrDefault(u => u.Id == request.CreatorId);
+
+            var approval = new Approval()
+            {
+                Review = review,
+                User = user,
+                Status = request.ReviewStatus
+            };
+
+            tripContext.Approvals.Add(approval);
+
+            if (tripContext.SaveChanges() == 0)
+            {
+                throw new Exception("Failed to save comment data");
+            }
+
+            return GetReview(review.Id);
         }
     }
 }

@@ -17,5 +17,6 @@ namespace LKOStest.Interfaces
 
         Review DeleteComment(string reviewId, string commentId);
         List<Review> GetReviews(string tripId, string userId = null);
+        Review PostReviewStatus(ReviewStatusRequest request);
     }
 }

@@ -15,7 +15,7 @@ namespace LKOStest.Controllers
         }
 
         [HttpPost]
-        [Route("{tripId}/Reviews/{reviewId}/Comments")]
+        [Route("{reviewId}/Comments")]
         public IActionResult AddCommentToReview([FromBody] CommentRequest commentRequest)
         {
             var review = reviewService.AddCommentToTrip(commentRequest);
@@ -49,5 +49,20 @@ namespace LKOStest.Controllers
 
             return Ok(reviews);
         }
+
+        [HttpPost]
+        [Route("{reviewId}")]
+        public IActionResult PostStatus([FromBody] ReviewStatusRequest request)
+        {
+            var review = reviewService.PostReviewStatus(request);
+
+            return Ok(review);
+        }
+    }
+
+    public class ReviewStatusRequest
+    {
+        public string CreatorId { get; set; }
+        public string ReviewStatus { get; set; }
     }
 }

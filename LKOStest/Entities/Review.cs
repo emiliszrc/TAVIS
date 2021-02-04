@@ -26,5 +26,7 @@ namespace LKOStest.Entities
         public string ApprovalStatus { get; set; }
 
         public virtual List<Comment> Comments { get; set; } 
+
+        public virtual List<Approval>  Approvals { get; set; }
     }
 }

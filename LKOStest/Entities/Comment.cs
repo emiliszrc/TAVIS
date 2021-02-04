@@ -21,5 +21,7 @@ namespace LKOStest.Entities
         public Review Review { get; set; }
 
         public virtual List<Comment> ChildComments { get; set; }
+
+        public User Creator { get; set; }
     }
 }

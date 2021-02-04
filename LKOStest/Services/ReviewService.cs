@@ -45,13 +45,16 @@ namespace LKOStest.Services
             var review = tripContext.Reviews.FirstOrDefault(r => r.Id == commentRequest.ReviewId);
             var parentComment = tripContext.Comments.FirstOrDefault(c => c.Id == commentRequest.ParentCommentId);
             var visit = tripContext.Visits.FirstOrDefault(d => d.Id == commentRequest.VisitId);
+            var user = tripContext.Users.FirstOrDefault(u => u.Id == commentRequest.CreatorId);
 
             var comment = new Comment()
             {
                 Visit = visit,
                 Text = commentRequest.Text,
                 ParentComment = parentComment,
-                Review = review
+                Review = review,
+                ElementType = commentRequest.ElementType,
+                Creator = user
             };
 
             tripContext.Comments.Add(comment);
@@ -103,6 +106,11 @@ namespace LKOStest.Services
             reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
 
             return reviews;
+        }
+
+        public Review PostReviewStatus(ReviewStatusRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

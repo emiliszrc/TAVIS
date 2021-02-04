@@ -6,6 +6,7 @@ using LKOStest.Dtos;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace LKOStest.Controllers
 {
@@ -14,29 +15,52 @@ namespace LKOStest.Controllers
     public class UserController : ControllerBase
     {
         private IUserService userService;
+        private IConfiguration configuration;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IConfiguration configuration)
         {
             this.userService = userService;
+            this.configuration = configuration;
         }
 
         [HttpGet]
         [Route("{username}")]
-        public User GetByUsername(string username)
+        public IActionResult GetByUsername(string username)
         {
-            return userService.GetUserBy(username);
+            try
+            {
+                return Ok(userService.GetUserBy(username));
+            }
+            catch (NotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(500);
+            }
         }
 
         [HttpPost]
-        public void Post([FromBody] UserRequest user)
+        public IActionResult Post([FromBody] UserRequest userRequest)
         {
-            userService.CreateUser(user);
-        }
+            try
+            {
+                var user = userService.CreateUser(userRequest);
 
-        [HttpGet]
-        public User Login(string username, string password)
-        {
-            return userService.Login(username, password);
+                if (user == null)
+                {
+                    return StatusCode(500);
+                }
+
+                return Created($"{configuration.GetSection("Hostname").Value}/user/{user.Id}", "");
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

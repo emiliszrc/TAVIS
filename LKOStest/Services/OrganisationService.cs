@@ -17,6 +17,7 @@ namespace LKOStest.Services
             this.tripContext = tripContext;
         }
 
+
         public List<Organisation> GetOrganisations()
         {
             var organisations = tripContext.Organisations.ToList();
@@ -29,6 +30,7 @@ namespace LKOStest.Services
             return organisations;
 
         }
+
 
         public Organisation GetOrganisationBy(string organisationId)
         {
@@ -54,6 +56,7 @@ namespace LKOStest.Services
 
             return organisation;
         }
+
 
         public Organisation AddUserToOrganisation(string organisationId, string userId)
         {
@@ -90,6 +93,7 @@ namespace LKOStest.Services
 
             return GetOrganisationBy(organisationId);
         }
+
 
         public Organisation RemoveUserFromOrganisation(string organisationId, string userId)
         {

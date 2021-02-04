@@ -10,6 +10,5 @@ namespace LKOStest.Interfaces
         User GetUserBy(int userId);
         User GetUserBy(string username);
         User CreateUser(UserRequest user);
-        User Login(string username, string password);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LKOStest.Controllers;
 using LKOStest.Dtos;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
@@ -21,34 +22,43 @@ namespace LKOStest.Services
 
         public User GetUserBy(int userId)
         {
-            return tripContext.Users
+            var user = tripContext.Users
                 .FirstOrDefault(user => user.Id == userId.ToString());
+
+            if (user == null)
+            {
+                throw new NotFoundException();
+            }
+
+            return user;
         }
+
 
         public User GetUserBy(string username)
         {
-            return tripContext.Users
+            var user = tripContext.Users
                 .FirstOrDefault(user => user.Username == username);
+
+            if (user == null)
+            {
+                throw new NotFoundException();
+            }
+
+            return user;
         }
+
 
         public User CreateUser(UserRequest user)
         {
             var userMapped = User.From(user);
 
             tripContext.Users.Add(userMapped);
-            tripContext.SaveChanges();
-            return GetUserBy(int.Parse(userMapped.Id));
-        }
-
-        public User Login(string username, string password)
-        {
-            var user = GetUserBy(username);
-            if (user != null && user.Password == password && user.Username == username)
+            if (tripContext.SaveChanges() == 0)
             {
-                return user;
+                throw new Exception("Failed to create new user");
             }
 
-            return null;
+            return GetUserBy(int.Parse(userMapped.Id));
         }
     }
 }

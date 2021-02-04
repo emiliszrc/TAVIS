@@ -10,5 +10,6 @@ namespace LKOStest.Entities
         public string Id { get; set; }
         public Review Review { get; set; }
         public User User { get; set; }
+        public string Status { get; set; }
     }
 }

@@ -9,14 +9,12 @@ namespace LKOStest.Interfaces
 {
     public interface IReviewService
     {
-        Review AddReviewToTrip(ReviewRequest reviewRequest);
-
-        Review AddCommentToTrip(CommentRequest commentRequest);
-
         Review GetReview(string reviewId);
-
-        Review DeleteComment(string reviewId, string commentId);
-        List<Review> GetReviews(string tripId, string userId = null);
+        List<Review> GetReviewsByTripId(string tripId);
+        List<Review> GetReviewsByUserId(string userId);
+        Review CreateReviewForTrip(string tripId);
         Review PostReviewStatus(ReviewStatusRequest request);
+        Review AddCommentToTrip(CommentRequest commentRequest);
+        Review DeleteComment(string reviewId, string commentId);
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LKOStest.Controllers;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
+using LKOStest.Migrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace LKOStest.Services
@@ -18,14 +19,48 @@ namespace LKOStest.Services
             this.tripContext = tripContext;
         }
 
-        public Review AddReviewToTrip(ReviewRequest reviewRequest)
+        
+        public Review GetReview(string reviewId)
         {
-            var trip = tripContext.Trips.FirstOrDefault(t => t.Id == reviewRequest.TripId);
-            var user = tripContext.Users.FirstOrDefault(u => u.Id == reviewRequest.UserId);
+            var review = tripContext.Reviews
+                .Include(r => r.Comments)
+                .ThenInclude(c=>c.Visit)
+                .Include(a => a.Approvals)
+                .ThenInclude(u => u.User)
+                .FirstOrDefault(r => r.Id == reviewId);
+
+            return review ?? throw new NotFoundException();
+        }
+
+        public List<Review> GetReviewsByUserId(string userId)
+        {
+            var reviews = tripContext.Reviews
+                .Include(r => r.Comments)
+                .ThenInclude(c => c.Visit)
+                .Include(r => r.Trip)
+                .ThenInclude(t => t.Creator)
+                .Where(r => r.Trip.Creator.Id == userId)
+                .Include(a => a.Approvals)
+                .ThenInclude(u => u.User)
+                .Include(t => t.Reviewers)
+                .ToList();
+
+            if (!reviews.Any())
+            {
+                throw new NotFoundException();
+            }
+            
+            reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
+
+            return reviews;
+        }
+
+        public Review CreateReviewForTrip(string tripId)
+        {
+            var trip = tripContext.Trips.FirstOrDefault(t => t.Id == tripId);
 
             var review = new Review()
             {
-                ApprovalStatus = reviewRequest.ApprovalStatus,
                 Trip = trip
             };
 
@@ -33,7 +68,8 @@ namespace LKOStest.Services
 
             if (tripContext.SaveChanges() == 0)
             {
-                throw new Exception("Failed to save review data");
+                throw new Exception("Failed to create review for " +
+                                    $"{nameof(trip)}: {tripId}");
             }
 
             return GetReview(review.Id);
@@ -60,20 +96,12 @@ namespace LKOStest.Services
 
             if (tripContext.SaveChanges() == 0)
             {
-                throw new Exception("Failed to save comment data");
+                throw new Exception("Failed to save comment for " +
+                                    $"{nameof(review)}: {commentRequest.ReviewId}," +
+                                    $"{nameof(user)}: {commentRequest.CreatorId}");
             }
 
             return GetReview(review.Id);
-        }
-
-        public Review GetReview(string reviewId)
-        {
-            return tripContext.Reviews
-                .Include(r => r.Comments)
-                .ThenInclude(c=>c.Visit)
-                .Include(a => a.Approvals)
-                .ThenInclude(u => u.User)
-                .FirstOrDefault(r => r.Id == reviewId);
         }
 
         public Review DeleteComment(string reviewId, string commentId)
@@ -88,25 +116,21 @@ namespace LKOStest.Services
             return review;
         }
 
-        public List<Review> GetReviews(string tripId, string userId = null)
+        public List<Review> GetReviewsByTripId(string tripId)
         {
-            var reviews =  userId != null 
-                ? tripContext.Reviews
-                    .Include(r=>r.Comments)
-                    .ThenInclude(c => c.Visit)
-                    .Include(a => a.Approvals)
-                    .ThenInclude(u => u.User)
-                    .Include(t=> t.Reviewers)
-                    .Where(t=>t.Id == tripId)
-                    .ToList() 
-                : tripContext.Reviews
-                    .Include(r=>r.Comments)
-                    .ThenInclude(c => c.Visit)
-                    .Where(r => r.Trip.Id == tripId)
-                    .Include(a => a.Approvals)
-                    .ThenInclude(u => u.User)
-                    .Include(t => t.Reviewers)
-                    .ToList();
+            var reviews = tripContext.Reviews
+                .Include(r => r.Comments)
+                .ThenInclude(c => c.Visit)
+                .Where(r => r.Trip.Id == tripId)
+                .Include(a => a.Approvals)
+                .ThenInclude(u => u.User)
+                .Include(t => t.Reviewers)
+                .ToList();
+
+            if (!reviews.Any())
+            {
+                throw new NotFoundException();
+            }
 
             reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
 
@@ -129,7 +153,10 @@ namespace LKOStest.Services
 
             if (tripContext.SaveChanges() == 0)
             {
-                throw new Exception("Failed to save comment data");
+                throw new Exception("Failed to save review status:" +
+                                    $"{nameof(review)}: {request.ReviewId}," +
+                                    $"{nameof(user)}: {request.CreatorId}," +
+                                    $"{nameof(request.ReviewStatus)}: {request.ReviewStatus}");
             }
 
             return GetReview(review.Id);

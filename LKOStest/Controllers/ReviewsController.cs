@@ -1,4 +1,5 @@
-﻿using LKOStest.Interfaces;
+﻿using System;
+using LKOStest.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LKOStest.Controllers
@@ -18,45 +19,102 @@ namespace LKOStest.Controllers
         [Route("{reviewId}/Comments")]
         public IActionResult AddCommentToReview([FromBody] CommentRequest commentRequest)
         {
-            var review = reviewService.AddCommentToTrip(commentRequest);
+            try
+            {
+                var review = reviewService.AddCommentToTrip(commentRequest);
 
-            return Ok(review);
+                return Ok(review);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(500, e);
+            }
         }
 
         [HttpDelete]
-        [Route("{tripId}/Reviews/{reviewId}/Comments/{commentId}")]
+        [Route("{reviewId}/Comments/{commentId}")]
         public IActionResult DeleteCommentFromReview(string reviewId, string commentId)
         {
-            var review = reviewService.DeleteComment(reviewId, commentId);
+            try
+            {
+                var review = reviewService.DeleteComment(reviewId, commentId);
 
-            return Ok(review);
+                return Ok(review);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
         }
 
         [HttpGet]
-        [Route("{tripId}/Reviews/{reviewId}")]
+        [Route("{reviewId}")]
         public IActionResult GetReview(string reviewId)
         {
-            var review = reviewService.GetReview(reviewId);
+            try
+            {
+                var review = reviewService.GetReview(reviewId);
 
-            return Ok(review);
+                return Ok(review);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
         }
 
         [HttpGet]
-        [Route("{tripId}/Reviews/")]
-        public IActionResult GetTripReviews(string tripId)
+        [Route("by-trip/")]
+        public IActionResult GetReviewsByTripId([FromQuery] string tripId)
         {
-            var reviews = reviewService.GetReviews(tripId);
+            try
+            {
+                var reviews = reviewService.GetReviewsByTripId(tripId);
 
-            return Ok(reviews);
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        [Route("by-user/")]
+        public IActionResult GetReviewsByUserId([FromQuery] string userId)
+        {
+            try
+            {
+                var reviews = reviewService.GetReviewsByUserId(userId);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
         }
 
         [HttpPost]
         [Route("{reviewId}/Status")]
         public IActionResult PostStatus([FromBody] ReviewStatusRequest request)
         {
-            var review = reviewService.PostReviewStatus(request);
+            try
+            {
+                var review = reviewService.PostReviewStatus(request);
 
-            return Ok(review);
+                return Ok(review);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
         }
     }
 }

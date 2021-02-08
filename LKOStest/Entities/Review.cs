@@ -10,10 +10,6 @@ namespace LKOStest.Entities
 {
     public class Review : BaseEntity
     {
-        public Review()
-        {
-            Comments = new List<Comment>();
-        }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -21,9 +17,7 @@ namespace LKOStest.Entities
 
         public Trip Trip { get; set; }
 
-        public string ApprovalStatus { get; set; }
-
-        public virtual List<Comment> Comments { get; set; } 
+        public virtual List<Comment> Comments { get; set; } = new List<Comment>();
 
         public virtual List<User> Reviewers { get; set; }
 

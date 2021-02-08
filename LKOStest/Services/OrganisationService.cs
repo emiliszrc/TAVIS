@@ -22,13 +22,7 @@ namespace LKOStest.Services
         {
             var organisations = tripContext.Organisations.ToList();
 
-            if (!organisations.Any())
-            {
-                throw new NotFoundException();
-            }
-
-            return organisations;
-
+            return organisations.Any() ? organisations : throw new NotFoundException();
         }
 
 
@@ -36,12 +30,7 @@ namespace LKOStest.Services
         {
             var organisation = tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == organisationId);
 
-            if (organisation == null)
-            {
-                throw new NotFoundException();
-            }
-
-            return organisation;
+            return organisation ?? throw new NotFoundException();
         }
 
 
@@ -61,23 +50,14 @@ namespace LKOStest.Services
         public Organisation AddUserToOrganisation(string organisationId, string userId)
         {
             var user = tripContext.Users.FirstOrDefault(u => u.Id == userId);
-            if (user == null)
-            {
-                throw new NotFoundException(nameof(user) + " was not found");
-            }
+            if (user == null) throw new NotFoundException(nameof(user) + " was not found");
 
             var organisation = tripContext.Organisations.FirstOrDefault(o => o.Id == organisationId);
-            if (organisation == null)
-            {
-                throw new NotFoundException(nameof(organisation) + " was not found");
-            }
+            if (organisation == null) throw new NotFoundException(nameof(organisation) + " was not found");
 
             var existingContract = tripContext.Contracts
                 .FirstOrDefault(c => c.User.Id == userId && c.Organisation.Id == organisationId);
-            if (existingContract != null)
-            {
-                throw new ObjectAlreadyExists();
-            }
+            if (existingContract != null) throw new ObjectAlreadyExists();
 
             var contract = new Contract
             {
@@ -92,6 +72,7 @@ namespace LKOStest.Services
             }
 
             return GetOrganisationBy(organisationId);
+
         }
 
 

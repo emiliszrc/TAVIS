@@ -7,8 +7,8 @@ namespace LKOStest.Interfaces
 {
     public interface IUserService
     {
-        User GetUserBy(int userId);
-        User GetUserBy(string username);
+        User GetUserBy(string userId);
+        User GetUserByUsername(string username);
         User CreateUser(UserRequest user);
     }
 }

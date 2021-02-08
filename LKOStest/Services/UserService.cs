@@ -20,31 +20,20 @@ namespace LKOStest.Services
             this.tripContext = tripContext;
         }
 
-        public User GetUserBy(int userId)
+        public User GetUserByUsername(string username)
         {
             var user = tripContext.Users
-                .FirstOrDefault(user => user.Id == userId.ToString());
+                .FirstOrDefault(u => u.Username == username);
 
-            if (user == null)
-            {
-                throw new NotFoundException();
-            }
-
-            return user;
+            return user ?? throw new NotFoundException();
         }
 
-
-        public User GetUserBy(string username)
+        public User GetUserBy(string id)
         {
             var user = tripContext.Users
-                .FirstOrDefault(user => user.Username == username);
+                .FirstOrDefault(u => u.Id == id);
 
-            if (user == null)
-            {
-                throw new NotFoundException();
-            }
-
-            return user;
+            return user ?? throw new NotFoundException();
         }
 
 
@@ -58,7 +47,7 @@ namespace LKOStest.Services
                 throw new Exception("Failed to create new user");
             }
 
-            return GetUserBy(int.Parse(userMapped.Id));
+            return GetUserBy(userMapped.Id);
         }
     }
 }

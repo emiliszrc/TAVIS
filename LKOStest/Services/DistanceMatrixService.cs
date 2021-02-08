@@ -1,6 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using RestSharp;
-using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 
 namespace LKOStest.Services
 {
@@ -17,48 +20,17 @@ namespace LKOStest.Services
 
             var response = client.Execute(request);
 
-            var distance = JsonConvert.DeserializeObject<DistanceCalculation>(response.Content);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var distance = JsonConvert.DeserializeObject<DistanceCalculation>(response.Content);
+                return distance;
+            }
 
-            return distance;
+            Console.WriteLine($"Distance call failed with " +
+                              $"{nameof(response.ErrorMessage)}: {response.ErrorMessage}, " +
+                              $"{nameof(response.StatusCode)}: {response.StatusCode.ToString()}");
+            throw new HttpRequestException(response.StatusCode.ToString());
         }
-    }
-
-    public interface IDistanceMatrixService
-    {
-        public DistanceCalculation GetDistance(string origin, string destination);
-    }
-
-
-    public class Distance
-    {
-        public string text { get; set; }
-        public int value { get; set; }
-    }
-
-    public class Duration
-    {
-        public string text { get; set; }
-        public int value { get; set; }
-    }
-
-    public class Element
-    {
-        public Distance distance { get; set; }
-        public Duration duration { get; set; }
-        public string status { get; set; }
-    }
-
-    public class Row
-    {
-        public List<Element> elements { get; set; }
-    }
-
-    public class DistanceCalculation
-    {
-        public List<string> destination_addresses { get; set; }
-        public List<string> origin_addresses { get; set; }
-        public List<Row> rows { get; set; }
-        public string status { get; set; }
     }
 }
 

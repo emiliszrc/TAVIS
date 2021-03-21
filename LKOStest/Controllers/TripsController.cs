@@ -39,6 +39,15 @@ namespace LKOStest.Controllers
         }
 
         [HttpGet]
+        [Route("/ByClientId/{clientId}")]
+        public IActionResult GetByClientId(string clientId)
+        {
+            var trips = tripService.GetTripsByClientId(clientId);
+
+            return Ok(trips);
+        }
+
+        [HttpGet]
         [Route("all")]
         public IActionResult GetAllTrips()
         {

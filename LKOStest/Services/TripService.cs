@@ -85,6 +85,14 @@ namespace LKOStest.Services
             tripContext.SaveChanges();
         }
 
+        public List<Trip> GetTripsByClientId(string clientId)
+        {
+            return tripContext.Participations
+                .Where(p => p.Client.Id == clientId)
+                .Select(p => p.Trip)
+                .ToList();
+        }
+
         public Trip CreateNewTrip(TripRequest tripRequest)
         {
             var creator = tripContext.Users.FirstOrDefault(u => u.Id == tripRequest.CreatorId); 

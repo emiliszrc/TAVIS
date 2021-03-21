@@ -19,8 +19,8 @@ namespace LKOStest.Entities
 
         public virtual List<Comment> Comments { get; set; } = new List<Comment>();
 
-        public virtual List<User> Reviewers { get; set; }
+        public virtual List<Reviewer> Reviewers { get; set; }
 
-        public virtual List<Approval>  Approvals { get; set; }
+        public virtual List<Approval> Approvals { get; set; }
     }
 }

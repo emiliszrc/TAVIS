@@ -19,14 +19,16 @@ namespace LKOStest.Services
             this.tripContext = tripContext;
         }
 
-        
+
         public Review GetReview(string reviewId)
         {
             var review = tripContext.Reviews
                 .Include(r => r.Comments)
-                .ThenInclude(c=>c.Visit)
+                .ThenInclude(c => c.Visit)
                 .Include(a => a.Approvals)
                 .ThenInclude(u => u.User)
+                .Include(r=>r.Reviewers)
+                .ThenInclude(r=>r.User)
                 .FirstOrDefault(r => r.Id == reviewId);
 
             return review ?? throw new NotFoundException();
@@ -43,21 +45,22 @@ namespace LKOStest.Services
                 .Include(a => a.Approvals)
                 .ThenInclude(u => u.User)
                 .Include(t => t.Reviewers)
+                .ThenInclude(r=>r.User)
                 .ToList();
 
             if (!reviews.Any())
             {
                 throw new NotFoundException();
             }
-            
+
             reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
 
             return reviews;
         }
 
-        public Review CreateReviewForTrip(string tripId)
+        public Review CreateReviewForTrip(ReviewRequest request)
         {
-            var trip = tripContext.Trips.FirstOrDefault(t => t.Id == tripId);
+            var trip = tripContext.Trips.FirstOrDefault(t => t.Id == request.TripId);
 
             var review = new Review()
             {
@@ -69,97 +72,113 @@ namespace LKOStest.Services
             if (tripContext.SaveChanges() == 0)
             {
                 throw new Exception("Failed to create review for " +
-                                    $"{nameof(trip)}: {tripId}");
+                                    $"{nameof(trip)}: {request.TripId}");
             }
 
-            return GetReview(review.Id);
-        }
-
-        public Review AddCommentToTrip(CommentRequest commentRequest)
-        {
-            var review = tripContext.Reviews.FirstOrDefault(r => r.Id == commentRequest.ReviewId);
-            var parentComment = tripContext.Comments.FirstOrDefault(c => c.Id == commentRequest.ParentCommentId);
-            var visit = tripContext.Visits.FirstOrDefault(d => d.Id == commentRequest.VisitId);
-            var user = tripContext.Users.FirstOrDefault(u => u.Id == commentRequest.CreatorId);
-
-            var comment = new Comment()
-            {
-                Visit = visit,
-                Text = commentRequest.Text,
-                ParentComment = parentComment,
-                Review = review,
-                ElementType = commentRequest.ElementType,
-                Creator = user
-            };
-
-            tripContext.Comments.Add(comment);
-
-            if (tripContext.SaveChanges() == 0)
-            {
-                throw new Exception("Failed to save comment for " +
-                                    $"{nameof(review)}: {commentRequest.ReviewId}," +
-                                    $"{nameof(user)}: {commentRequest.CreatorId}");
-            }
-
-            return GetReview(review.Id);
-        }
-
-        public Review DeleteComment(string reviewId, string commentId)
-        {
-            var review = tripContext.Reviews.FirstOrDefault(r => r.Id == reviewId);
-            var comment = review.Comments.FirstOrDefault(c => c.Id == commentId);
-
-            review.Comments.Remove(comment);
-
-            tripContext.Reviews.Update(review);
-
-            return review;
-        }
-
-        public List<Review> GetReviewsByTripId(string tripId)
-        {
-            var reviews = tripContext.Reviews
-                .Include(r => r.Comments)
-                .ThenInclude(c => c.Visit)
-                .Where(r => r.Trip.Id == tripId)
-                .Include(a => a.Approvals)
-                .ThenInclude(u => u.User)
-                .Include(t => t.Reviewers)
+            var reviewers = request.Reviewers
+                .Select(reviewer => new Reviewer
+                {
+                    User = tripContext.Users.FirstOrDefault(u => u.Id == reviewer),
+                    Review = tripContext.Reviews.FirstOrDefault(r => r.Id == review.Id)
+                })
                 .ToList();
 
-            if (!reviews.Any())
-            {
-                throw new NotFoundException();
-            }
-
-            reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
-
-            return reviews;
-        }
-
-        public Review PostReviewStatus(ReviewStatusRequest request)
-        {
-            var review = tripContext.Reviews.FirstOrDefault(r => r.Id == request.ReviewId);
-            var user = tripContext.Users.FirstOrDefault(u => u.Id == request.CreatorId);
-
-            var approval = new Approval()
-            {
-                Review = review,
-                User = user,
-                Status = request.ReviewStatus
-            };
-
-            tripContext.Approvals.Add(approval);
+            tripContext.Reviewers.AddRange(reviewers);
 
             if (tripContext.SaveChanges() == 0)
             {
-                throw new Exception("Failed to save review status:" +
-                                    $"{nameof(review)}: {request.ReviewId}," +
-                                    $"{nameof(user)}: {request.CreatorId}," +
-                                    $"{nameof(request.ReviewStatus)}: {request.ReviewStatus}");
+                throw new Exception("Failed to create reviewers for " +
+                                    $"{nameof(review)}: {review.Id}");
             }
 
             return GetReview(review.Id);
-        }
+}
+
+public Review AddCommentToTrip(CommentRequest commentRequest)
+{
+    var review = tripContext.Reviews.FirstOrDefault(r => r.Id == commentRequest.ReviewId);
+    var parentComment = tripContext.Comments.FirstOrDefault(c => c.Id == commentRequest.ParentCommentId);
+    var visit = tripContext.Visits.FirstOrDefault(d => d.Id == commentRequest.VisitId);
+    var user = tripContext.Users.FirstOrDefault(u => u.Id == commentRequest.CreatorId);
+
+    var comment = new Comment()
+    {
+        Visit = visit,
+        Text = commentRequest.Text,
+        ParentComment = parentComment,
+        Review = review,
+        ElementType = commentRequest.ElementType,
+        Creator = user
+    };
+
+    tripContext.Comments.Add(comment);
+
+    if (tripContext.SaveChanges() == 0)
+    {
+        throw new Exception("Failed to save comment for " +
+                            $"{nameof(review)}: {commentRequest.ReviewId}," +
+                            $"{nameof(user)}: {commentRequest.CreatorId}");
+    }
+
+    return GetReview(review.Id);
+}
+
+public Review DeleteComment(string reviewId, string commentId)
+{
+    var review = tripContext.Reviews.FirstOrDefault(r => r.Id == reviewId);
+    var comment = review.Comments.FirstOrDefault(c => c.Id == commentId);
+
+    review.Comments.Remove(comment);
+
+    tripContext.Reviews.Update(review);
+
+    return review;
+}
+
+public List<Review> GetReviewsByTripId(string tripId)
+{
+    var reviews = tripContext.Reviews
+        .Include(r => r.Comments)
+        .ThenInclude(c => c.Visit)
+        .Where(r => r.Trip.Id == tripId)
+        .Include(a => a.Approvals)
+        .ThenInclude(u => u.User)
+        .Include(t => t.Reviewers)
+        .ToList();
+
+    if (!reviews.Any())
+    {
+        throw new NotFoundException();
+    }
+
+    reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
+
+    return reviews;
+}
+
+public Review PostReviewStatus(ReviewStatusRequest request)
+{
+    var review = tripContext.Reviews.FirstOrDefault(r => r.Id == request.ReviewId);
+    var user = tripContext.Users.FirstOrDefault(u => u.Id == request.CreatorId);
+
+    var approval = new Approval()
+    {
+        Review = review,
+        User = user,
+        Status = request.ReviewStatus
+    };
+
+    tripContext.Approvals.Add(approval);
+
+    if (tripContext.SaveChanges() == 0)
+    {
+        throw new Exception("Failed to save review status:" +
+                            $"{nameof(review)}: {request.ReviewId}," +
+                            $"{nameof(user)}: {request.CreatorId}," +
+                            $"{nameof(request.ReviewStatus)}: {request.ReviewStatus}");
+    }
+
+    return GetReview(review.Id);
+}
     }
 }

@@ -7,6 +7,7 @@ using LKOStest.Dtos;
 using LKOStest.Entities;
 using LKOStest.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LKOStest.Services
 {
@@ -23,6 +24,8 @@ namespace LKOStest.Services
         public User GetUserByUsername(string username)
         {
             var user = tripContext.Users
+                .Include(u=>u.Contracts)
+                .ThenInclude(u => u.Organisation)
                 .FirstOrDefault(u => u.Username == username);
 
             return user ?? throw new NotFoundException();

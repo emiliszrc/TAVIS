@@ -12,7 +12,7 @@ namespace LKOStest.Interfaces
         Review GetReview(string reviewId);
         List<Review> GetReviewsByTripId(string tripId);
         List<Review> GetReviewsByUserId(string userId);
-        Review CreateReviewForTrip(string tripId);
+        Review CreateReviewForTrip(ReviewRequest tripId);
         Review PostReviewStatus(ReviewStatusRequest request);
         Review AddCommentToTrip(CommentRequest commentRequest);
         Review DeleteComment(string reviewId, string commentId);

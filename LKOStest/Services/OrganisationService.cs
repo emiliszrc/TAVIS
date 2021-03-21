@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LKOStest.Controllers;
 using LKOStest.Entities;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 
 namespace LKOStest.Services
 {
@@ -20,7 +21,10 @@ namespace LKOStest.Services
 
         public List<Organisation> GetOrganisations()
         {
-            var organisations = tripContext.Organisations.ToList();
+            var organisations = tripContext.Organisations
+                .Include(o => o.Contracts)
+                .ThenInclude(c=>c.User)
+                .ToList();
 
             return organisations.Any() ? organisations : throw new NotFoundException();
         }
@@ -28,7 +32,10 @@ namespace LKOStest.Services
 
         public Organisation GetOrganisationBy(string organisationId)
         {
-            var organisation = tripContext.Organisations.FirstOrDefault(organisation => organisation.Id == organisationId);
+            var organisation = tripContext.Organisations
+                .Include(o=>o.Contracts)
+                .ThenInclude(c => c.User)
+                .FirstOrDefault(organisation => organisation.Id == organisationId);
 
             return organisation ?? throw new NotFoundException();
         }

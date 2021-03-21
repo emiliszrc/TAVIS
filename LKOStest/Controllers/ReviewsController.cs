@@ -16,6 +16,22 @@ namespace LKOStest.Controllers
         }
 
         [HttpPost]
+        public IActionResult CreateReview([FromBody] ReviewRequest request)
+        {
+            try
+            {
+                var review = reviewService.CreateReviewForTrip(request);
+
+                return Ok(review);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost]
         [Route("{reviewId}/Comments")]
         public IActionResult AddCommentToReview([FromBody] CommentRequest commentRequest)
         {

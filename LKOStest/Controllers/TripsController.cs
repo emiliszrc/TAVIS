@@ -39,7 +39,7 @@ namespace LKOStest.Controllers
         }
 
         [HttpGet]
-        [Route("/ByClientId/{clientId}")]
+        [Route("ByClientId/{clientId}")]
         public IActionResult GetByClientId(string clientId)
         {
             var trips = tripService.GetTripsByClientId(clientId);

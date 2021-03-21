@@ -68,6 +68,8 @@ namespace LKOStest
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Approval> Approvals { get; set; }
         public DbSet<Reviewer> Reviewers { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Participation> Participations { get; set; }
     }
 
     public class BaseEntity

@@ -38,6 +38,7 @@ namespace LKOStest
             services.AddScoped<IOrganisationService, OrganisationService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IClientsService, ClientService>();
             services.AddSwaggerGen();
             services.AddDbContext<TripContext>(item => item.UseSqlServer(Configuration.GetConnectionString("TripContext")));
         }

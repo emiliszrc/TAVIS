@@ -87,10 +87,12 @@ namespace LKOStest.Services
 
         public List<Trip> GetTripsByClientId(string clientId)
         {
-            return tripContext.Participations
+            var tripIds = tripContext.Participations
                 .Where(p => p.Client.Id == clientId)
-                .Select(p => p.Trip)
+                .Select(p => p.Trip.Id)
                 .ToList();
+
+            return tripIds.Select(GetTrip).ToList();
         }
 
         public Trip CreateNewTrip(TripRequest tripRequest)

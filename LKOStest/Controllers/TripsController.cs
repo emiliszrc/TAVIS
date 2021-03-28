@@ -98,5 +98,16 @@ namespace LKOStest.Controllers
 
             return Ok(trip);
         }
+
+        [HttpGet]
+        [Route("Validate/{tripId}")]
+        public IActionResult ValidateTrip(string tripId)
+        {
+            var trip = tripService.GetTrip(tripId);
+
+            var validity = tripService.ValidateTrip(trip);
+
+            return Ok(validity);
+        }
     }
 }

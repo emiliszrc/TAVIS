@@ -16,7 +16,7 @@ namespace LKOStest.Services
 
             request.AddQueryParameter("origins", origin);
             request.AddQueryParameter("destinations", destination);
-            request.AddQueryParameter("key", "AIzaSyBsbhG8jrghjF0VMCS90Ex7AQnaoy2HVUY");
+            request.AddQueryParameter("key", "AIzaSyBTy3bxl0b3SAmoeef4cb08uQnnJM3U9nM");
 
             var response = client.Execute(request);
 

@@ -29,6 +29,10 @@ namespace LKOStest.Controllers
             }
 
             var response = searchService.SearchForLocation(location);
+            var restaurant = response.data.FirstOrDefault(r => r.result_type == "restaurants");
+            var details = searchService.GetRestaurantDetails(restaurant.result_object.location_id);
+            var attraction = response.data.FirstOrDefault(r => r.result_type == "things_to_do");
+            var attDetails = searchService.GetAttractionDetails(attraction.result_object.location_id);
 
             return Ok(response.data.Select(Destination.From));
         }
@@ -46,6 +50,24 @@ namespace LKOStest.Controllers
                 return BadRequest($"\"destination\" was null or empty");
             }
             return Ok(distanceMatrixService.GetDistance(origin, destination));
+        }
+
+        [HttpGet]
+        [Route("holidays")]
+        public IActionResult GetHolidays([FromQuery] string year, [FromQuery] string countryCode)
+        {
+            var holidays = searchService.SearchForHolidays(countryCode, year);
+
+            return Ok(holidays);
+        }
+
+        [HttpGet]
+        [Route("reverseGeocoding")]
+        public IActionResult GetReverseGeocoding([FromQuery] string latitude, [FromQuery] string longtitude)
+        {
+            var countryCode = searchService.GetCountryCode(latitude, longtitude);
+
+            return Ok(countryCode);
         }
     }
 }

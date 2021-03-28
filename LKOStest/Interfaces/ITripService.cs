@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Schema;
 using LKOStest.Dtos;
 using LKOStest.Entities;
+using LKOStest.Models;
 using LKOStest.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LKOStest.Interfaces
 {
@@ -15,5 +18,6 @@ namespace LKOStest.Interfaces
         public Location AddLocation(string tripId, LocationRequest locationRequest);
         public void RemoveVisitFromTrip(string tripId, string visitId);
         public List<Trip> GetTripsByClientId(string clientId);
+        public Validity ValidateTrip(Trip trip);
     }
 }

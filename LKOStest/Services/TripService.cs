@@ -340,7 +340,7 @@ namespace LKOStest.Services
 
         private bool GetValidity(List<Reason> reasons)
         {
-            return reasons.Any(r => r.IsBlocker);
+            return !reasons.Any(r => r.IsBlocker);
         }
     }
 }

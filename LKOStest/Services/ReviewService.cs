@@ -29,6 +29,7 @@ namespace LKOStest.Services
                 .ThenInclude(u => u.User)
                 .Include(r=>r.Reviewers)
                 .ThenInclude(r=>r.User)
+                .Include(r=>r.Trip)
                 .FirstOrDefault(r => r.Id == reviewId);
 
             return review ?? throw new NotFoundException();

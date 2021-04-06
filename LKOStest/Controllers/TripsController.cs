@@ -81,6 +81,24 @@ namespace LKOStest.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        [Route("Visits/{visitId}")]
+        public IActionResult GetVisitById(string visitId)
+        {
+            var visit = tripService.GetVisit(visitId);
+
+            return Ok(visit);
+        }
+
+        [HttpPost]
+        [Route("Visits/{visitId}")]
+        public IActionResult UpdateVisit(string visitId, [FromBody] VisitRequest visitRequest)
+       {
+            var visit = tripService.UpdateVisit(visitId, visitRequest);
+
+            return Ok(visit);
+        }
+
         [HttpPost]
         [Route("Locations")]
         public IActionResult AddLocation(string tripId, [FromBody] LocationRequest locationRequest)

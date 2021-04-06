@@ -19,6 +19,7 @@ namespace LKOStest.Entities
         public string Id { get; set; }
 
         public string Title { get; set; }
+        public User Creator { get; set; }
 
         public virtual List<Contract> Contracts { get; set; }
     }

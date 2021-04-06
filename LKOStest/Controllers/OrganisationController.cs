@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using LKOStest.Dtos;
 using LKOStest.Entities;
+using LKOStest.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
@@ -66,13 +68,15 @@ namespace LKOStest.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Organisation organisationRequest)
+        public IActionResult Post([FromBody] OrganisationRequest organisationRequest)
         {
             try
             {
                 var organisation = organisationService.CreateNew(organisationRequest);
 
-                return Created($"{configuration.GetSection("Hostname").Value}/organisation/{organisation.Id}", "");
+                organisation = organisationService.AddUserToOrganisation(organisation.Id, organisationRequest.OwnerId, ContractType.Owner);
+
+                return Ok(organisation);
             }
             catch (Exception e)
             {
@@ -132,5 +136,97 @@ namespace LKOStest.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpPost("{organisationId}/Invite")]
+        public IActionResult InviteUserToOrganisation(string organisationId, [FromBody] InviteRequest request)
+        {
+            try
+            {
+                var invite = organisationService.InviteToOrganisation(organisationId, request);
+
+                if (invite == null)
+                {
+                    return StatusCode(500);
+                }
+
+                return Ok(invite);
+            }
+            catch (NotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("Users/{userId}/Invites")]
+        public IActionResult GetInvitesForUser(string userId)
+        {
+            try
+            {
+                var invites = organisationService.GetInvitesForUser(userId);
+
+                if (invites == null)
+                {
+                    return StatusCode(500);
+                }
+
+                return Ok(invites);
+            }
+            catch (NotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost("Invites/{inviteId}")]
+        public IActionResult RespondToInvite(string inviteId, [FromBody] InviteResponse inviteResponse)
+        {
+            try
+            {
+                var invites = organisationService.RespondToInvite(inviteId, inviteResponse);
+
+                if (invites == null)
+                {
+                    return StatusCode(500);
+                }
+
+                return Ok(invites);
+            }
+            catch (NotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(500);
+            }
+        }
+    }
+
+    public class InviteResponse
+    {
+        public string InviteId { get; set; }
+        public string OrganisationId { get; set; }
+        public string UserId { get; set; }
+        public InviteStatus Status { get; set; }
+    }
+
+    public class InviteRequest
+    {
+        public string OrganisationId { get; set; }
+        public string Username { get; set; }
     }
 }

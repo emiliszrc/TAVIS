@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20210403235940_AddingInvites")]
+    partial class AddingInvites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,9 +158,6 @@ namespace LKOStest.Migrations
 
                     b.Property<string>("OrganisationId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -326,9 +325,6 @@ namespace LKOStest.Migrations
                     b.Property<string>("CreatorId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("OrganisationId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
@@ -338,8 +334,6 @@ namespace LKOStest.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
-
-                    b.HasIndex("OrganisationId");
 
                     b.ToTable("Trips");
                 });
@@ -407,42 +401,6 @@ namespace LKOStest.Migrations
                     b.HasIndex("TripId");
 
                     b.ToTable("Visits");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Warning", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsBlocker")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ReviewId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisitId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("WarningCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WarningText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewId");
-
-                    b.HasIndex("VisitId");
-
-                    b.ToTable("Warnings");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Approval", b =>
@@ -538,10 +496,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId");
-
-                    b.HasOne("LKOStest.Entities.Organisation", "Organisation")
-                        .WithMany()
-                        .HasForeignKey("OrganisationId");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Visit", b =>
@@ -553,17 +507,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.Trip", "Trip")
                         .WithMany("Visits")
                         .HasForeignKey("TripId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Warning", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Review", null)
-                        .WithMany("Warnings")
-                        .HasForeignKey("ReviewId");
-
-                    b.HasOne("LKOStest.Entities.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId");
                 });
 #pragma warning restore 612, 618
         }

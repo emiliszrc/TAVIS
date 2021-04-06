@@ -1,4 +1,5 @@
 ﻿using System;
+using LKOStest.Dtos;
 using LKOStest.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace LKOStest.Controllers
     public class ReviewsController : Controller
     {
         private IReviewService reviewService;
+        private ITripService tripService;
 
-        public ReviewsController(IReviewService reviewService)
+        public ReviewsController(IReviewService reviewService, ITripService tripService)
         {
             this.reviewService = reviewService;
+            this.tripService = tripService;
         }
 
         [HttpPost]
@@ -20,9 +23,16 @@ namespace LKOStest.Controllers
         {
             try
             {
-                var review = reviewService.CreateReviewForTrip(request);
+                var trip = tripService.GetTrip(request.TripId);
+                var validity = tripService.ValidateTrip(trip);
 
-                return Ok(review);
+                if (validity.IsValid && request.IgnoreWarnings)
+                {
+                    var review = reviewService.CreateReviewForTrip(request, validity);
+                    return Ok(review);
+                }
+
+                return BadRequest();
             }
             catch (Exception e)
             {
@@ -100,12 +110,97 @@ namespace LKOStest.Controllers
         }
 
         [HttpGet]
-        [Route("by-user/")]
+        [Route("by-user/forApproval")]
         public IActionResult GetReviewsByUserId([FromQuery] string userId)
         {
             try
             {
-                var reviews = reviewService.GetReviewsByUserId(userId);
+                var reviews = reviewService.GetNewReviewsByUserId(userId);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        [Route("by-user/alreadyApproved")]
+        public IActionResult GetApprovedReviewsByUserId([FromQuery] string userId)
+        {
+            try
+            {
+                var reviews = reviewService.GetAlreadyApprovedReviewsByUserId(userId);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        [Route("by-user/closed")]
+        public IActionResult GetClosedReviewsByUserId([FromQuery] string userId)
+        {
+            try
+            {
+                var reviews = reviewService.GetClosedReviewsByUserId(userId);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        [Route("by-creator/forApproval")]
+        public IActionResult GetReviewsByCreatorId([FromQuery] string userId)
+        {
+            try
+            {
+                var reviews = reviewService.GetNewReviewsByCreatorId(userId);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        [Route("by-creator/alreadyApproved")]
+        public IActionResult GetApprovedReviewsByCreatorId([FromQuery] string userId)
+        {
+            try
+            {
+                var reviews = reviewService.GetAlreadyApprovedReviewsByCreatorId(userId);
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        [Route("by-creator/closed")]
+        public IActionResult GetClosedReviewsByCreatorId([FromQuery] string userId)
+        {
+            try
+            {
+                var reviews = reviewService.GetClosedReviewsByCreatorId(userId);
 
                 return Ok(reviews);
             }

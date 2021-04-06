@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using LKOStest.Entities;
 
-namespace LKOStest.Controllers
+namespace LKOStest.Dtos
 {
     public class ReviewRequest
     {
-        public string TripId;
-        public List<string> Reviewers;
+        public string TripId { get; set; }
+        public List<string> Reviewers { get; set; }
+        public bool IgnoreWarnings { get; set; }
     }
 }

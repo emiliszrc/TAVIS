@@ -18,6 +18,8 @@ namespace LKOStest.Interfaces
         public Location AddLocation(string tripId, LocationRequest locationRequest);
         public void RemoveVisitFromTrip(string tripId, string visitId);
         public List<Trip> GetTripsByClientId(string clientId);
-        public Validity ValidateTrip(Trip trip);
+        public TripValidity ValidateTrip(Trip trip);
+        public Visit GetVisit(string visitId);
+        public Visit UpdateVisit(string visitId, VisitRequest visitRequest);
     }
 }

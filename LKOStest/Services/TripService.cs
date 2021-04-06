@@ -29,6 +29,7 @@ namespace LKOStest.Services
                 .Include(i => i.Visits)
                 .ThenInclude(v=>v.Location)
                 .Include(i=>i.Creator)
+                .Include(t=>t.Organisation)
                 .FirstOrDefault();
         }
 
@@ -37,6 +38,7 @@ namespace LKOStest.Services
             return tripContext.Trips
                 .Include(i => i.Visits).ThenInclude(v=> v.Location)
                 .Include(i => i.Creator)
+                .Include(t => t.Organisation)
                 .ToList();
         }
 
@@ -101,13 +103,15 @@ namespace LKOStest.Services
 
         public Trip CreateNewTrip(TripRequest tripRequest)
         {
-            var creator = tripContext.Users.FirstOrDefault(u => u.Id == tripRequest.CreatorId); 
+            var creator = tripContext.Users.FirstOrDefault(u => u.Id == tripRequest.CreatorId);
+            var organisation = tripContext.Organisations.FirstOrDefault(o => o.Id == tripRequest.OrganisationId);
 
             var trip = new Trip
             {
                 Title = tripRequest.Title,
                 Visits = new List<Visit>(),
-                Creator = creator
+                Creator = creator,
+                Organisation = organisation
             };
 
             tripContext.Trips.Add(trip);
@@ -145,9 +149,32 @@ namespace LKOStest.Services
             return GetTrip(visitRequest.TripId);
         }
 
-        public Validity ValidateTrip(Trip trip)
+        public TripValidity ValidateTrip(Trip trip)
         {
             return validityFactory.ValidateTrip(trip);
+        }
+
+        public Visit GetVisit(string visitId)
+        {
+            return tripContext.Visits
+                .Where(v => v.Id.Equals(visitId))
+                .Include(v =>v.Location)
+                .Include(v=>v.Trip)
+                .FirstOrDefault();
+        }
+
+        public Visit UpdateVisit(string visitId, VisitRequest visitRequest)
+        {
+            var visit = tripContext.Visits.FirstOrDefault(v => v.Id == visitId);
+
+            visit.Arrival = visitRequest.Arrival;
+            visit.Departure = visitRequest.Departure;
+            visit.Location = tripContext.Locations.FirstOrDefault(l => l.Id == visitRequest.LocationId);
+
+            tripContext.Visits.Update(visit);
+            tripContext.SaveChanges();
+
+            return GetVisit(visitId);
         }
     }
 
@@ -170,7 +197,7 @@ namespace LKOStest.Services
 
     public interface IValidityFactory
     {
-        public Validity ValidateTrip(Trip trip);
+        public TripValidity ValidateTrip(Trip trip);
     }
 
     public class ValidityFactory : IValidityFactory
@@ -184,7 +211,7 @@ namespace LKOStest.Services
             this.distanceMatrixService = distanceMatrixService;
         }
 
-        public Validity ValidateTrip(Trip trip)
+        public TripValidity ValidateTrip(Trip trip)
         {
             var reasons = ValidateTripSpecifics(trip);
 
@@ -193,7 +220,7 @@ namespace LKOStest.Services
                 reasons.AddRange(ValidateTripVisit(tripVisit, trip));
             }
 
-            var validity = new Validity
+            var validity = new TripValidity
             {
                 Reasons = reasons,
                 IsValid = GetValidity(reasons)

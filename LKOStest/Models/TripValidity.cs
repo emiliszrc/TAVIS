@@ -6,7 +6,7 @@ using LKOStest.Entities;
 
 namespace LKOStest.Models
 {
-    public class Validity
+    public class TripValidity
     {
         public IEnumerable<Reason> Reasons { get; set; }
 

@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20210406195116_AddTripWarnings")]
+    partial class AddTripWarnings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -427,9 +429,6 @@ namespace LKOStest.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("VisitId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("WarningCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -439,8 +438,6 @@ namespace LKOStest.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ReviewId");
-
-                    b.HasIndex("VisitId");
 
                     b.ToTable("Warnings");
                 });
@@ -560,10 +557,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.Review", null)
                         .WithMany("Warnings")
                         .HasForeignKey("ReviewId");
-
-                    b.HasOne("LKOStest.Entities.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20210401161608_AddedReviewStatus")]
+    partial class AddedReviewStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,8 +33,8 @@ namespace LKOStest.Migrations
                     b.Property<string>("ReviewId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -121,9 +123,6 @@ namespace LKOStest.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ContractType")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -143,36 +142,6 @@ namespace LKOStest.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Contracts");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Invite", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("OrganisationId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganisationId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Invites");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Location", b =>
@@ -219,9 +188,6 @@ namespace LKOStest.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreatorId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
@@ -229,8 +195,6 @@ namespace LKOStest.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatorId");
 
                     b.ToTable("Organisations");
                 });
@@ -271,8 +235,8 @@ namespace LKOStest.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TripId")
                         .HasColumnType("nvarchar(450)");
@@ -326,9 +290,6 @@ namespace LKOStest.Migrations
                     b.Property<string>("CreatorId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("OrganisationId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
@@ -338,8 +299,6 @@ namespace LKOStest.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
-
-                    b.HasIndex("OrganisationId");
 
                     b.ToTable("Trips");
                 });
@@ -409,42 +368,6 @@ namespace LKOStest.Migrations
                     b.ToTable("Visits");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Warning", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsBlocker")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ReviewId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisitId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("WarningCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WarningText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewId");
-
-                    b.HasIndex("VisitId");
-
-                    b.ToTable("Warnings");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Approval", b =>
                 {
                     b.HasOne("LKOStest.Entities.Review", "Review")
@@ -486,24 +409,6 @@ namespace LKOStest.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Invite", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Organisation", "Organisation")
-                        .WithMany()
-                        .HasForeignKey("OrganisationId");
-
-                    b.HasOne("LKOStest.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Organisation", b =>
-                {
-                    b.HasOne("LKOStest.Entities.User", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatorId");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Participation", b =>
                 {
                     b.HasOne("LKOStest.Entities.Client", "Client")
@@ -538,10 +443,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId");
-
-                    b.HasOne("LKOStest.Entities.Organisation", "Organisation")
-                        .WithMany()
-                        .HasForeignKey("OrganisationId");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Visit", b =>
@@ -553,17 +454,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.Trip", "Trip")
                         .WithMany("Visits")
                         .HasForeignKey("TripId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Warning", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Review", null)
-                        .WithMany("Warnings")
-                        .HasForeignKey("ReviewId");
-
-                    b.HasOne("LKOStest.Entities.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId");
                 });
 #pragma warning restore 612, 618
         }

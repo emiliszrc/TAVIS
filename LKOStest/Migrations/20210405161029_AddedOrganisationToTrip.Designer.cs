@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20210405161029_AddedOrganisationToTrip")]
+    partial class AddedOrganisationToTrip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -409,42 +411,6 @@ namespace LKOStest.Migrations
                     b.ToTable("Visits");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Warning", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsBlocker")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ReviewId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisitId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("WarningCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WarningText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewId");
-
-                    b.HasIndex("VisitId");
-
-                    b.ToTable("Warnings");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Approval", b =>
                 {
                     b.HasOne("LKOStest.Entities.Review", "Review")
@@ -553,17 +519,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.Trip", "Trip")
                         .WithMany("Visits")
                         .HasForeignKey("TripId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Warning", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Review", null)
-                        .WithMany("Warnings")
-                        .HasForeignKey("ReviewId");
-
-                    b.HasOne("LKOStest.Entities.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId");
                 });
 #pragma warning restore 612, 618
         }

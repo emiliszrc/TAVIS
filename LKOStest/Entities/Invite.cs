@@ -3,13 +3,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LKOStest.Entities
 {
-    public class Approval : BaseEntity
+    public class Invite : BaseEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
-        public Review Review { get; set; }
+        public Organisation Organisation { get; set; }
         public User User { get; set; }
-        public ApprovalStatus Status { get; set; }
+        public InviteStatus Status { get; set; }
+    }
+
+    public enum InviteStatus
+    {
+        New,
+        Accepted,
+        Rejected,
+        RejectedAcknowledged
     }
 }

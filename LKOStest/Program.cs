@@ -70,6 +70,8 @@ namespace LKOStest
         public DbSet<Reviewer> Reviewers { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Participation> Participations { get; set; }
+        public DbSet<Invite> Invites { get; set; }
+        public DbSet<Warning> Warnings { get; set; }
     }
 
     public class BaseEntity

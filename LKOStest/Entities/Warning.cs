@@ -4,17 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using LKOStest.Services;
 
 namespace LKOStest.Entities
 {
-    public class Contract : BaseEntity
+    public class Warning : BaseEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
-        public User User { get; set; }
-        public Organisation Organisation { get; set; }
-        public ContractType ContractType { get; set; }
+        public string WarningCode { get; set; }
+        public string WarningText { get; set; }
+        public bool IsBlocker { get; set; }
+        public Visit Visit { get; set; }
     }
 }

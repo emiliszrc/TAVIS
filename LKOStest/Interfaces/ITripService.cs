@@ -21,5 +21,12 @@ namespace LKOStest.Interfaces
         public TripValidity ValidateTrip(Trip trip);
         public Visit GetVisit(string visitId);
         public Visit UpdateVisit(string visitId, VisitRequest visitRequest);
+        public List<Comment> GetComments(string tripId);
+        public List<Trip> GetUserTrips(string userId);
+        public List<Trip> GetOrganisationTrips(string userId);
+        public void DeleteTrip(string tripId);
+        public Review GetReview(string tripId);
+        public List<Trip> GetFinalTrips(string userId);
+        public void RestoreStatuses();
     }
 }

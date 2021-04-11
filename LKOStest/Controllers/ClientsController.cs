@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using LKOStest.Entities;
+using LKOStest.Interfaces;
+using LKOStest.Services;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
 
@@ -15,23 +19,26 @@ namespace LKOStest.Controllers
     public class ClientsController : ControllerBase
     {
         private IClientsService _clientsService;
+        private IEmailService _emailService;
+        private ITripService _tripService;
 
-        public ClientsController(IClientsService clientsService)
+        public ClientsController(IClientsService clientsService, IEmailService emailService, ITripService tripService)
         {
             _clientsService = clientsService;
+            _emailService = emailService;
+            _tripService = tripService;
         }
 
-        [HttpGet]
-        public IEnumerable<Client> Get()
+        [HttpGet("forTrip/{id}")]
+        public IActionResult GetForTrip(string id)
         {
-            return _clientsService.GetClients();
+            return Ok(_clientsService.GetClientsForTrip(id));
         }
 
         [HttpGet("{id}")]
-        public Client Get(string id)
+        public IActionResult Get(string id)
         {
-
-            return _clientsService.GetClientById(id);
+            return Ok(_clientsService.GetClientById(id));
         }
 
         [HttpPost]
@@ -40,84 +47,173 @@ namespace LKOStest.Controllers
             return _clientsService.CreateNewClient(request);
         }
 
-        [HttpPut("{id}")]
-        public Client Put(string id, [FromBody] TripAssignRequest request)
+        [HttpPost]
+        [Route("invite")]
+        public IActionResult Put([FromBody] ParticipationRequest request)
         {
-            return _clientsService.AssignTripToClient(id, request.TripId);
+            var existingClient = _clientsService.GetClientByEmail(request.Email);
+
+            if (existingClient != null)
+            {
+                return BadRequest("Client already exists");
+            }
+
+            var password = PasswordGenerator.GetUniqueKey(9);
+
+            var clientRequest = new ClientRequest
+            {
+                DefaultPassword = password,
+                Email = request.Email,
+                FirstName = request.FirstName,
+                LastName = request.LastName
+            };
+            
+            var client = _clientsService.CreateNewClient(clientRequest);
+            _clientsService.AssignTripToClient(client.Id, request.TripId);
+
+            return Ok(_clientsService.GetClientsForTrip(request.TripId));
+        }
+
+        [HttpPost]
+        [Route("sendInviteEmail/byTrip/{tripId}")]
+        public IActionResult SendForTripId(string tripId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Route("sendInviteEmail/byClient/{clientId}/{tripId}/{resend}")]
+        public IActionResult SendForClientId(string clientId, string tripId, bool resend)
+        {
+            if (!resend)
+            {
+                var emails = _emailService.GetClientEmails(clientId);
+                if (emails.Any(e => e.Trip != null && e.Trip.Id == tripId))
+                {
+                    return BadRequest("Email already sent for trip");
+                }
+            }
+
+            var client = _clientsService.GetClientById(clientId);
+            var trip = _tripService.GetTrip(tripId);
+
+            var emailRequest = new EmailRequest
+            {
+                GeneratedPassword = client.DefaultPassword,
+                Receiver = $"{client.Name} {client.Surname}",
+                ReceiverEmail = client.Email,
+                SenderEmail = "em.zareckis@gmail.com",
+                TripTitle = trip.Title
+            };
+
+            var success = _emailService.SendEmail(emailRequest);
+
+            var email = new SentEmail
+            {
+                    ReceiverEmail = emailRequest.ReceiverEmail,
+                    SenderEmail = emailRequest.SenderEmail,
+                    Success = success,
+                    Client = client,
+                    Trip = trip
+            };
+
+            _emailService.LogSentEmail(email);
+
+            return Ok(success);
+        }
+
+        [HttpGet("byEmail/{email}")]
+        public IActionResult GetByEmail(string email)
+        {
+            return Ok(_clientsService.GetClientByEmail(email));
+        }
+
+        [HttpPost("{id}/checkin")]
+        public IActionResult Checkin(string id, [FromBody] CheckinRequest request)
+        {
+            return Ok(_clientsService.CheckinToVisit(request));
         }
     }
 
-    public class TripAssignRequest
+    public class CheckinRequest
     {
         public string TripId { get; set; }
+        public string VisitId { get; set; }
+        public string ClientId { get; set; }
+    }
+
+    public class PasswordGenerator
+    {
+        internal static readonly char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
+
+        public static string GetUniqueKey(int size)
+        {
+            var data = new byte[4 * size];
+            using (var crypto = new RNGCryptoServiceProvider())
+            {
+                crypto.GetBytes(data);
+            }
+            StringBuilder result = new StringBuilder(size);
+            for (int i = 0; i < size; i++)
+            {
+                var rnd = BitConverter.ToUInt32(data, i * 4);
+                var idx = rnd % chars.Length;
+
+                result.Append(chars[idx]);
+            }
+
+            return result.ToString();
+        }
+
+        public static string GetUniqueKeyOriginal_BIASED(int size)
+        {
+            char[] chars =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
+            byte[] data = new byte[size];
+            using (RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider())
+            {
+                crypto.GetBytes(data);
+            }
+            StringBuilder result = new StringBuilder(size);
+            foreach (byte b in data)
+            {
+                result.Append(chars[b % (chars.Length)]);
+            }
+            return result.ToString();
+        }
+    }
+
+    public class ParticipationRequest
+    {
+        public string TripId { get; set; }
+        public string Email { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 
     public interface IClientsService
     {
-        public List<Client> GetClients();
+        public List<Client> GetClientsForTrip(string id);
         public Client GetClientById(string clientId);
         public Client CreateNewClient(ClientRequest clientRequest);
         public Client AssignTripToClient(string clientId, string tripId);
+        public Client GetClientByEmail(string requestEmail);
+        public Checkin CheckinToVisit(CheckinRequest request);
+        public Checkin PostFeedback(FeedbackRequest request);
     }
 
-    public class ClientService : IClientsService
+    public class FeedbackRequest
     {
-        private TripContext _tripContext;
-
-        public ClientService(TripContext tripContext)
-        {
-            _tripContext = tripContext;
-        }
-
-        public List<Client> GetClients()
-        {
-            return _tripContext.Clients.ToList();
-        }
-
-        public Client GetClientById(string clientId)
-        {
-            return _tripContext.Clients.FirstOrDefault(client => client.Id == clientId);
-        }
-
-        public Client CreateNewClient(ClientRequest clientRequest)
-        {
-            var client = Client.From(clientRequest);
-
-            _tripContext.Clients.Add(client);
-
-            if (_tripContext.SaveChanges() == 0)
-            {
-                throw new Exception("Failed to create new client");
-            }
-
-            return client;
-        }
-
-        public Client AssignTripToClient(string clientId, string tripId)
-        {
-            var client = _tripContext.Clients.FirstOrDefault(c => c.Id == clientId);
-            var trip = _tripContext.Trips.FirstOrDefault(t => t.Id == tripId);
-
-            var participation = new Participation
-            {
-                Client = client,
-                Trip = trip
-            };
-
-            _tripContext.Participations.Add(participation);
-
-            if (_tripContext.SaveChanges() == 0)
-            {
-                throw new Exception("Failed to assign trip to client");
-            }
-
-            return client;
-        }
+        public string TripId { get; set; }
+        public string VisitId { get; set; }
+        public string UserId { get; set; }
     }
 
     public class ClientRequest
     {
-        public string firstName;
-        public string lastName;
+        public string Email { get; set; }
+        public string DefaultPassword { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }

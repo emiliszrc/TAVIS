@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LKOStest.Controllers;
 using LKOStest.Interfaces;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SmtpServer;
 
 namespace LKOStest
 {
@@ -40,6 +42,7 @@ namespace LKOStest
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IClientsService, ClientService>();
             services.AddScoped<IValidityFactory, ValidityFactory>();
+            services.AddScoped<IEmailService, EmailService>();
 
             services.AddSwaggerGen();
             services.AddDbContext<TripContext>(item => item.UseSqlServer(Configuration.GetConnectionString("TripContext")));

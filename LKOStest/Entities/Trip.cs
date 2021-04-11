@@ -21,5 +21,13 @@ namespace LKOStest.Entities
 
         public User Creator { get; set; }
         public Organisation Organisation { get; set; }
+        public TripStatus TripStatus { get; set; }
+    }
+
+    public enum TripStatus
+    {
+        New,
+        InReview,
+        Final
     }
 }

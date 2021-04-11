@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20210411153425_AddedEmailLog")]
+    partial class AddedEmailLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,36 +51,6 @@ namespace LKOStest.Migrations
                     b.ToTable("Approvals");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Checkin", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Feedback")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisitId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("VisitId");
-
-                    b.ToTable("Checkins");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Client", b =>
                 {
                     b.Property<string>("Id")
@@ -95,12 +67,6 @@ namespace LKOStest.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Notified")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Password")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Surname")
@@ -377,17 +343,12 @@ namespace LKOStest.Migrations
                     b.Property<bool>("Success")
                         .HasColumnType("bit");
 
-                    b.Property<string>("TripId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
-
-                    b.HasIndex("TripId");
 
                     b.ToTable("SentEmails");
                 });
@@ -537,17 +498,6 @@ namespace LKOStest.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("LKOStest.Entities.Checkin", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId");
-
-                    b.HasOne("LKOStest.Entities.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId");
-                });
-
             modelBuilder.Entity("LKOStest.Entities.Comment", b =>
                 {
                     b.HasOne("LKOStest.Entities.User", "Creator")
@@ -630,10 +580,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.Client", "Client")
                         .WithMany()
                         .HasForeignKey("ClientId");
-
-                    b.HasOne("LKOStest.Entities.Trip", "Trip")
-                        .WithMany()
-                        .HasForeignKey("TripId");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Trip", b =>

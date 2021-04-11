@@ -72,6 +72,8 @@ namespace LKOStest
         public DbSet<Participation> Participations { get; set; }
         public DbSet<Invite> Invites { get; set; }
         public DbSet<Warning> Warnings { get; set; }
+        public DbSet<SentEmail> SentEmails { get; set; }
+        public DbSet<Checkin> Checkins { get; set; }
     }
 
     public class BaseEntity

@@ -18,12 +18,20 @@ namespace LKOStest.Entities
 
         public string Surname { get; set; }
 
+        public string DefaultPassword { get; set; }
+        public string Password { get; set; }
+
+        public string Email { get; set; }
+        public bool Notified { get; set; } = false;
+
         public List<Participation> Participations { get; set; }
 
         public static Client From(ClientRequest clientRequest) => new Client
         {
-            Name = clientRequest.firstName,
-            Surname = clientRequest.lastName
+            Name = clientRequest.FirstName,
+            Surname = clientRequest.LastName,
+            Email = clientRequest.Email,
+            DefaultPassword = clientRequest.DefaultPassword
         };
     }
 }

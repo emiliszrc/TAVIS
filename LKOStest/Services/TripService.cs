@@ -27,16 +27,16 @@ namespace LKOStest.Services
         {
             return tripContext.Trips.Where(trip => trip.Id == tripId)
                 .Include(i => i.Visits)
-                .ThenInclude(v=>v.Location)
-                .Include(i=>i.Creator)
-                .Include(t=>t.Organisation)
+                .ThenInclude(v => v.Location)
+                .Include(i => i.Creator)
+                .Include(t => t.Organisation)
                 .FirstOrDefault();
         }
 
         public List<Trip> GetTrips()
         {
             return tripContext.Trips
-                .Include(i => i.Visits).ThenInclude(v=> v.Location)
+                .Include(i => i.Visits).ThenInclude(v => v.Location)
                 .Include(i => i.Creator)
                 .Include(t => t.Organisation)
                 .ToList();
@@ -81,7 +81,7 @@ namespace LKOStest.Services
 
             tripContext.SaveChanges();
 
-            return tripContext.Locations.FirstOrDefault(l=> l.Id == location.Id);
+            return tripContext.Locations.FirstOrDefault(l => l.Id == location.Id);
         }
 
         public void RemoveVisitFromTrip(string tripId, string visitId)
@@ -111,7 +111,8 @@ namespace LKOStest.Services
                 Title = tripRequest.Title,
                 Visits = new List<Visit>(),
                 Creator = creator,
-                Organisation = organisation
+                Organisation = organisation,
+                TripStatus = TripStatus.New
             };
 
             tripContext.Trips.Add(trip);
@@ -158,8 +159,8 @@ namespace LKOStest.Services
         {
             return tripContext.Visits
                 .Where(v => v.Id.Equals(visitId))
-                .Include(v =>v.Location)
-                .Include(v=>v.Trip)
+                .Include(v => v.Location)
+                .Include(v => v.Trip)
                 .FirstOrDefault();
         }
 
@@ -176,6 +177,134 @@ namespace LKOStest.Services
 
             return GetVisit(visitId);
         }
+
+        public List<Comment> GetComments(string tripId)
+        {
+            var comments = tripContext.Reviews.Where(r => r.Trip.Id == tripId)
+                .Include(r => r.Comments)
+                .SelectMany(r => r.Comments)
+                .ToList();
+
+            comments.RemoveAll(c => c.ParentComment != null);
+
+            return comments;
+        }
+
+        public List<Trip> GetUserTrips(string userId)
+        {
+            var trips = tripContext.Trips
+                .Include(i => i.Visits).ThenInclude(v => v.Location)
+                .Include(i => i.Creator)
+                .Include(t => t.Organisation)
+                .Where(t => t.Creator.Id == userId)
+                .ToList();
+
+            return trips;
+        }
+
+        public List<Trip> GetOrganisationTrips(string userId)
+        {
+            var trips = tripContext.Trips
+                .Include(i => i.Visits).ThenInclude(v => v.Location)
+                .Include(i => i.Creator)
+                .Include(t => t.Organisation)
+                .ThenInclude(o => o.Contracts)
+                .ThenInclude(c => c.User)
+                .Where(t => t.Organisation.Contracts.Any(c => c.User.Id == userId) && t.Creator.Id != userId)
+                .ToList();
+
+            return trips;
+        }
+
+        public void DeleteTrip(string tripId)
+        {
+            var trip = tripContext.Trips.FirstOrDefault(t => t.Id == tripId);
+
+            tripContext.Trips.Remove(trip);
+            tripContext.SaveChanges();
+        }
+
+        public Review GetReview(string tripId)
+        {
+            var review = tripContext.Reviews
+                .Include(r => r.Reviewers)
+                .FirstOrDefault(r => r.Trip.Id == tripId && r.Status == ReviewStatus.New);
+
+            return review;
+        }
+
+        public List<Trip> GetFinalTrips(string userId)
+        {
+            var trips = tripContext.Trips
+                .Include(i => i.Visits).ThenInclude(v => v.Location)
+                .Include(i => i.Creator)
+                .Include(t => t.Organisation)
+                .Where(t=>t.TripStatus == TripStatus.Final)
+                .Where(t => t.Organisation.Contracts.Any(c => c.User.Id == userId) || t.Creator.Id == userId)
+                .ToList();
+
+            return trips;
+        }
+
+        public void RestoreStatuses()
+        {
+            var trips = tripContext.Trips
+                .Include(i => i.Visits).ThenInclude(v => v.Location)
+                .Include(i => i.Creator)
+                .Include(t => t.Organisation)
+                .ThenInclude(o => o.Contracts)
+                .ThenInclude(c => c.User)
+                .ToList();
+
+
+            foreach (var trip in trips)
+            {
+                var reviews = tripContext.Reviews
+                    .Where(r => r.Trip.Id == trip.Id)
+                    .ToList();
+
+                var inReview = reviews.Any(r => r.Status == ReviewStatus.New);
+
+                if (inReview)
+                {
+                    trip.TripStatus = TripStatus.InReview;
+                    tripContext.Trips.Update(trip);
+                    tripContext.SaveChanges();
+                }
+
+                var final = reviews.Any(r => r.Status == ReviewStatus.Approved);
+
+                if (final)
+                {
+                    trip.TripStatus = TripStatus.Final;
+                    tripContext.Trips.Update(trip);
+                    tripContext.SaveChanges();
+                }
+            }
+        }
+    }
+
+    public class TripResponse
+    {
+        public TripResponse(string id, string title, List<Visit> visits, User creator, Organisation organisation, bool isInActiveReview)
+        {
+            Id = id;
+            Title = title;
+            Visits = visits;
+            Creator = creator;
+            Organisation = organisation;
+            IsInActiveReview = isInActiveReview;
+        }
+
+        public string Id { get; set; }
+
+        public string Title { get; set; }
+
+        public List<Visit> Visits { get; set; }
+
+        public User Creator { get; set; }
+        public Organisation Organisation { get; set; }
+        public bool IsInActiveReview { get; set; }
     }
 
     public class LocationRequest
@@ -242,7 +371,7 @@ namespace LKOStest.Services
             {
                 foreach (var holiday in hittingHolidays)
                 {
-                    reasons.Add(new Reason("1", 
+                    reasons.Add(new Reason("1",
                         $"Visit is occuring during a public holiday: {holiday.Name}",
                         visit.Id, false));
                 }
@@ -354,7 +483,7 @@ namespace LKOStest.Services
                     visit.Id, true));
             }
 
-            
+
 
 
             return reasons;

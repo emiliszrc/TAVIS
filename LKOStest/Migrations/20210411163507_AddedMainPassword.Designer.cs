@@ -4,14 +4,16 @@ using LKOStest;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LKOStest.Migrations
 {
     [DbContext(typeof(TripContext))]
-    partial class TripContextModelSnapshot : ModelSnapshot
+    [Migration("20210411163507_AddedMainPassword")]
+    partial class AddedMainPassword
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,36 +49,6 @@ namespace LKOStest.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Approvals");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Checkin", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClientId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Feedback")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisitId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientId");
-
-                    b.HasIndex("VisitId");
-
-                    b.ToTable("Checkins");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Client", b =>
@@ -535,17 +507,6 @@ namespace LKOStest.Migrations
                     b.HasOne("LKOStest.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("LKOStest.Entities.Checkin", b =>
-                {
-                    b.HasOne("LKOStest.Entities.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId");
-
-                    b.HasOne("LKOStest.Entities.Visit", "Visit")
-                        .WithMany()
-                        .HasForeignKey("VisitId");
                 });
 
             modelBuilder.Entity("LKOStest.Entities.Comment", b =>

@@ -48,6 +48,38 @@ namespace LKOStest.Controllers
         }
 
         [HttpGet]
+        [Route("createdByUser/{userId}")]
+        public IActionResult GetUserTrips(string userId)
+        {
+            try
+            {
+                var createdTrips = tripService.GetUserTrips(userId);
+
+                return Ok(createdTrips);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
+        [Route("createdByOrganisation/{userId}")]
+        public IActionResult GetOrganisationTrips(string userId)
+        {
+            try
+            {
+                var createdTrips = tripService.GetOrganisationTrips(userId);
+
+                return Ok(createdTrips);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
         [Route("all")]
         public IActionResult GetAllTrips()
         {
@@ -56,6 +88,38 @@ namespace LKOStest.Controllers
                 var createdTrip = tripService.GetTrips();
 
                 return Ok(createdTrip);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
+        [Route("final/{userId}")]
+        public IActionResult GetAllFinalTrips(string userId)
+        {
+            try
+            {
+                var finalTrips = tripService.GetFinalTrips(userId);
+
+                return Ok(finalTrips);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpDelete]
+        [Route("{tripId}")]
+        public IActionResult DeleteTrip(string tripId)
+        {
+            try
+            {
+                tripService.DeleteTrip(tripId);
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -126,6 +190,33 @@ namespace LKOStest.Controllers
             var validity = tripService.ValidateTrip(trip);
 
             return Ok(validity);
+        }
+
+        [HttpGet]
+        [Route("{tripId}/Comments")]
+        public IActionResult GetTripComments(string tripId)
+        {
+            var comments = tripService.GetComments(tripId);
+
+            return Ok(comments);
+        }
+
+        [HttpGet]
+        [Route("{tripId}/Review")]
+        public IActionResult GetTripReview(string tripId)
+        {
+            var comments = tripService.GetReview(tripId);
+
+            return Ok(comments);
+        }
+
+        [HttpPost]
+        [Route("Restore")]
+        public IActionResult RunRestore()
+        {
+            tripService.RestoreStatuses();
+
+            return Ok();
         }
     }
 }

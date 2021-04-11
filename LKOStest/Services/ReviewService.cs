@@ -33,6 +33,7 @@ namespace LKOStest.Services
                 .ThenInclude(r => r.User)
                 .Include(r => r.Trip)
                 .Include(r=>r.Warnings)
+                .ThenInclude(w => w.Visit)
                 .FirstOrDefault(r => r.Id == reviewId);
 
             review?.Comments.RemoveAll(c => c.ParentComment != null);
@@ -54,6 +55,7 @@ namespace LKOStest.Services
                 .Include(t => t.Reviewers)
                 .ThenInclude(r => r.User)
                 .Include(r => r.Warnings)
+                .ThenInclude(w => w.Visit)
                 .Where(r => r.Reviewers.Any(rr=>rr.User.Id == userId) && r.Status == ReviewStatus.New)
                 .ToList();
 
@@ -78,6 +80,7 @@ namespace LKOStest.Services
                 .Include(t => t.Reviewers)
                 .ThenInclude(r => r.User)
                 .Include(r => r.Warnings)
+                .ThenInclude(w => w.Visit)
                 .Where(r => r.Reviewers.Any(rr => rr.User.Id == userId) && r.Status == ReviewStatus.New)
                 .ToList();
 
@@ -102,6 +105,7 @@ namespace LKOStest.Services
                 .Include(t => t.Reviewers)
                 .ThenInclude(r => r.User)
                 .Include(r => r.Warnings)
+                .ThenInclude(w => w.Visit)
                 .Where(r => r.Reviewers.Any(rr => rr.User.Id == userId) && r.Status != ReviewStatus.New)
                 .ToList();
 
@@ -126,6 +130,7 @@ namespace LKOStest.Services
                 .Include(t => t.Reviewers)
                 .ThenInclude(r => r.User)
                 .Include(r => r.Warnings)
+                .ThenInclude(w => w.Visit)
                 .Where(r => r.Trip.Creator.Id == userId && r.Status == ReviewStatus.New)
                 .ToList();
 
@@ -150,6 +155,7 @@ namespace LKOStest.Services
                 .Include(t => t.Reviewers)
                 .ThenInclude(r => r.User)
                 .Include(r => r.Warnings)
+                .ThenInclude(w => w.Visit)
                 .Where(r => r.Trip.Creator.Id == userId && r.Status == ReviewStatus.New)
                 .ToList();
 
@@ -174,6 +180,7 @@ namespace LKOStest.Services
                 .Include(t => t.Reviewers)
                 .ThenInclude(r => r.User)
                 .Include(r => r.Warnings)
+                .ThenInclude(w=>w.Visit)
                 .Where(r => r.Trip.Creator.Id == userId && r.Status != ReviewStatus.New)
                 .ToList();
 
@@ -204,6 +211,10 @@ namespace LKOStest.Services
             }
 
             var trip = tripContext.Trips.FirstOrDefault(t => t.Id == request.TripId);
+
+            trip.TripStatus = TripStatus.InReview;
+
+            tripContext.Trips.Update(trip);
 
             var review = new Review()
             {
@@ -346,7 +357,7 @@ namespace LKOStest.Services
                         .Where(approval => approval.Status.Equals(ApprovalStatus.Approved))
                         .ToList();
 
-                    if (approvingApprovals.Count > 2)
+                    if (approvingApprovals.Count >= 2)
                     {
                         UpdateReviewToStatus(reviewId, ReviewStatus.Approved);
                     }
@@ -368,7 +379,10 @@ namespace LKOStest.Services
                     break;
                 case ReviewStatus.New:
                     review.Status = approved;
+                    var trip = review.Trip;
+                    trip.TripStatus = TripStatus.Final;
                     tripContext.Reviews.Update(review);
+                    tripContext.Trips.Update(trip);
                     tripContext.SaveChanges();
                     break;
             }

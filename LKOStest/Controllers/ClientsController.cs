@@ -133,6 +133,19 @@ namespace LKOStest.Controllers
         {
             return Ok(_clientsService.CheckinToVisit(request));
         }
+
+        [HttpPost("{id}/SetPassword")]
+        public IActionResult SetPassword(string id, [FromBody] PasswordRequest passwordRequest)
+        {
+            return Ok(_clientsService.SetPassword(passwordRequest));
+        }
+    }
+
+    public class PasswordRequest
+    {
+        public string Id { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
     }
 
     public class CheckinRequest
@@ -200,6 +213,7 @@ namespace LKOStest.Controllers
         public Client GetClientByEmail(string requestEmail);
         public Checkin CheckinToVisit(CheckinRequest request);
         public Checkin PostFeedback(FeedbackRequest request);
+        public Client SetPassword(PasswordRequest passwordRequest);
     }
 
     public class FeedbackRequest

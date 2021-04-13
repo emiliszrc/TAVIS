@@ -81,7 +81,27 @@ namespace LKOStest.Controllers
 
         public Checkin CheckinToVisit(CheckinRequest request)
         {
-            throw new NotImplementedException();
+            var client = _tripContext.Clients.FirstOrDefault(c => c.Id == request.ClientId);
+            var visit = _tripContext.Visits.FirstOrDefault(v => v.Id == request.VisitId);
+            var trip = _tripContext.Trips.FirstOrDefault(t => t.Id == request.TripId);
+
+            var checkin = new Checkin
+            {
+                Client = client,
+                Visit = visit
+            };
+
+            _tripContext.Checkins.Add(checkin);
+            _tripContext.SaveChanges();
+
+            return checkin;
+        }
+
+        public void RemoveCheckins(string clientId, string tripId)
+        {
+            var checkins = _tripContext.Checkins.Where(c => c.Client.Id == clientId && c.Visit.Trip.Id == tripId);
+            _tripContext.Checkins.RemoveRange(checkins);
+            _tripContext.SaveChanges();
         }
 
         public Checkin PostFeedback(FeedbackRequest request)
@@ -105,6 +125,15 @@ namespace LKOStest.Controllers
             _tripContext.SaveChanges();
 
             return client;
+        }
+
+        public List<Checkin> GetCheckins(string clientId, string tripId)
+        {
+            return _tripContext.Checkins
+                .Include(c=>c.Visit)
+                .Include(c=>c.Visit)
+                .Where(c => c.Client.Id == clientId)
+                .ToList();
         }
 
         static string ComputeSha256Hash(string rawData)

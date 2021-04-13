@@ -34,6 +34,11 @@ namespace LKOStest.Controllers
         {
             return Ok(_clientsService.GetClientsForTrip(id));
         }
+        [HttpGet("{clientId}/GetCheckins/{tripId}")]
+        public IActionResult GetCheckins(string clientId, string tripId)
+        {
+            return Ok(_clientsService.GetCheckins(clientId, tripId));
+        }
 
         [HttpGet("{id}")]
         public IActionResult Get(string id)
@@ -128,10 +133,12 @@ namespace LKOStest.Controllers
             return Ok(_clientsService.GetClientByEmail(email));
         }
 
-        [HttpPost("{id}/checkin")]
-        public IActionResult Checkin(string id, [FromBody] CheckinRequest request)
+        [HttpPost("{clientId}/PostCheckins/{tripId}")]
+        public IActionResult Checkin(string clientId, string tripId, [FromBody] CheckinPosts request)
         {
-            return Ok(_clientsService.CheckinToVisit(request));
+            _clientsService.RemoveCheckins(clientId, tripId);
+            request.Items.ForEach(i=>_clientsService.CheckinToVisit(i));
+            return Ok();
         }
 
         [HttpPost("{id}/SetPassword")]
@@ -146,6 +153,11 @@ namespace LKOStest.Controllers
         public string Id { get; set; }
         public string OldPassword { get; set; }
         public string NewPassword { get; set; }
+    }
+
+    public class CheckinPosts
+    {
+        public List<CheckinRequest> Items { get; set; }
     }
 
     public class CheckinRequest
@@ -214,6 +226,8 @@ namespace LKOStest.Controllers
         public Checkin CheckinToVisit(CheckinRequest request);
         public Checkin PostFeedback(FeedbackRequest request);
         public Client SetPassword(PasswordRequest passwordRequest);
+        public List<Checkin> GetCheckins(string clientId, string tripId);
+        public void RemoveCheckins(string clientId, string tripId);
     }
 
     public class FeedbackRequest

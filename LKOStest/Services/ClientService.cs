@@ -34,6 +34,13 @@ namespace LKOStest.Controllers
         {
             var client = Client.From(clientRequest);
 
+            var existingClient = _tripContext.Clients.FirstOrDefault(c => c.Email == clientRequest.Email);
+
+            if (existingClient != null)
+            {
+                return existingClient;
+            }
+
             _tripContext.Clients.Add(client);
 
             if (_tripContext.SaveChanges() == 0)

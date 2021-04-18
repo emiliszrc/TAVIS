@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Schema;
+using LKOStest.Controllers;
 using LKOStest.Dtos;
 using LKOStest.Entities;
 using LKOStest.Models;
@@ -28,5 +29,6 @@ namespace LKOStest.Interfaces
         public Review GetReview(string tripId);
         public List<Trip> GetFinalTrips(string userId);
         public void RestoreStatuses();
+        public Trip ReuseTrip(string tripId, ReuseRequest reuseRequest);
     }
 }

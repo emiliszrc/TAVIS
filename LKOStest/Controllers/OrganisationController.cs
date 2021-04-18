@@ -163,6 +163,32 @@ namespace LKOStest.Controllers
             }
         }
 
+        [HttpPost("{organisationId}/SetReviewerCount/{count}")]
+        public IActionResult InviteUserToOrganisation(string organisationId, string count)
+        {
+            try
+            {
+                var organisation = organisationService.SetOrganisationReviewerCount(organisationId, count);
+
+                if (organisation == null)
+                {
+                    return StatusCode(500);
+                }
+
+                return Ok(organisation);
+            }
+            catch (NotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return StatusCode(500);
+            }
+        }
+
         [HttpGet("Users/{userId}/Invites")]
         public IActionResult GetInvitesForUser(string userId)
         {

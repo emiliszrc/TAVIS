@@ -15,5 +15,6 @@ namespace LKOStest.Controllers
         Invite InviteToOrganisation(string organisationId, InviteRequest request);
         List<Invite> GetInvitesForUser(string userId);
         Invite RespondToInvite(string inviteId, InviteResponse inviteResponse);
+        Organisation SetOrganisationReviewerCount(string organisationId, string count);
     }
 }

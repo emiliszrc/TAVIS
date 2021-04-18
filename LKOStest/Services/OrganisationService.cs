@@ -84,6 +84,17 @@ namespace LKOStest.Services
             return invite;
         }
 
+        public Organisation SetOrganisationReviewerCount(string organisationId, string count)
+        {
+            var org = tripContext.Organisations.FirstOrDefault(o => o.Id == organisationId);
+
+            org.RequiredReviewerCount = Convert.ToInt32(count);
+
+            tripContext.Organisations.Update(org);
+            tripContext.SaveChanges();
+            return GetOrganisationBy(org.Id);
+        }
+
 
         public Organisation GetOrganisationBy(string organisationId)
         {

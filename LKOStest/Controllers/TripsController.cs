@@ -181,6 +181,15 @@ namespace LKOStest.Controllers
             return Ok(trip);
         }
 
+        [HttpPost]
+        [Route("{tripId}/Reuse")]
+        public IActionResult Reuse(string tripId, [FromBody] ReuseRequest reuseRequest)
+        {
+            var trip = tripService.ReuseTrip(tripId, reuseRequest);
+
+            return Ok(trip);
+        }
+
         [HttpGet]
         [Route("Validate/{tripId}")]
         public IActionResult ValidateTrip(string tripId)
@@ -218,5 +227,13 @@ namespace LKOStest.Controllers
 
             return Ok();
         }
+    }
+
+    public class ReuseRequest
+    {
+        public string ReusingTripId { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
+        public string Title { get; set; } = string.Empty;
+        public string CreatorId { get; set; } = string.Empty;
     }
 }

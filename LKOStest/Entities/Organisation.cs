@@ -17,10 +17,9 @@ namespace LKOStest.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
-
         public string Title { get; set; }
         public User Creator { get; set; }
-
+        public int RequiredReviewerCount { get; set; }
         public virtual List<Contract> Contracts { get; set; }
     }
 }

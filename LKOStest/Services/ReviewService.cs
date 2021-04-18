@@ -334,32 +334,37 @@ namespace LKOStest.Services
                                     $"{nameof(request.ReviewStatus)}: {request.ReviewStatus}");
             }
 
-            RevalidateReviewStatus(review.Id, request.ReviewStatus);
+            RevalidateReviewStatus(review, request.ReviewStatus);
 
             return GetReview(review.Id);
         }
 
-        private void RevalidateReviewStatus(string reviewId, ApprovalStatus requestReviewStatus)
+        private void RevalidateReviewStatus(Review review, ApprovalStatus requestReviewStatus)
         {
             switch (requestReviewStatus)
             {
                 case ApprovalStatus.Rejecting:
-                    UpdateReviewToStatus(reviewId, ReviewStatus.Rejected);
+                    UpdateReviewToStatus(review.Id, ReviewStatus.Rejected);
                     break;
                 case ApprovalStatus.Cancelled:
-                    UpdateReviewToStatus(reviewId, ReviewStatus.Cancelled);
+                    UpdateReviewToStatus(review.Id, ReviewStatus.Cancelled);
                     break;
                 case ApprovalStatus.Approved:
                 {
-                    var approvals = tripContext.Approvals.Where(a => a.Review.Id == reviewId).ToList();
+                    var approvals = tripContext.Approvals.Where(a => a.Review.Id == review.Id).ToList();
 
                     var approvingApprovals = approvals
                         .Where(approval => approval.Status.Equals(ApprovalStatus.Approved))
                         .ToList();
 
-                    if (approvingApprovals.Count >= 2)
+                    var trip = tripContext.Reviews
+                        .Include(r => r.Trip)
+                        .ThenInclude(t => t.Organisation)
+                        .FirstOrDefault(r => review.Id == r.Id).Trip;
+
+                    if (approvingApprovals.Count >= trip.Organisation.RequiredReviewerCount)
                     {
-                        UpdateReviewToStatus(reviewId, ReviewStatus.Approved);
+                        UpdateReviewToStatus(review.Id, ReviewStatus.Approved);
                     }
 
                     break;

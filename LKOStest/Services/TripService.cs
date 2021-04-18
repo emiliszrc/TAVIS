@@ -8,6 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using LKOStest.Controllers;
 using LKOStest.Models;
 
 namespace LKOStest.Services
@@ -167,9 +168,11 @@ namespace LKOStest.Services
         public Visit UpdateVisit(string visitId, VisitRequest visitRequest)
         {
             var visit = tripContext.Visits.FirstOrDefault(v => v.Id == visitId);
-
-            visit.Arrival = visitRequest.Arrival;
-            visit.Departure = visitRequest.Departure;
+            var x = visitRequest.Arrival.ToLocalTime();
+            var z = visitRequest.Arrival.ToUniversalTime();
+            var y = visitRequest.Arrival.AddHours(3);
+            visit.Arrival = visitRequest.Arrival.AddHours(3);
+            visit.Departure = visitRequest.Departure.AddHours(3);
             visit.Location = tripContext.Locations.FirstOrDefault(l => l.Id == visitRequest.LocationId);
 
             tripContext.Visits.Update(visit);
@@ -282,6 +285,41 @@ namespace LKOStest.Services
                 }
             }
         }
+
+        public Trip ReuseTrip(string tripId, ReuseRequest reuseRequest)
+        {
+            var trip = GetTrip(tripId);
+
+            var reusableTrip = trip;
+
+            reusableTrip.Id = null;
+
+            if (reuseRequest.Title != string.Empty)
+            {
+                reusableTrip.Title = reuseRequest.Title;
+            }
+
+            var firstVisit = reusableTrip.Visits.OrderBy(v => v.VisitationIndex).FirstOrDefault();
+
+            var pushTimespan = reuseRequest.StartDate - firstVisit.Arrival;
+
+            foreach (var visit in reusableTrip.Visits)
+            {
+                visit.Arrival += pushTimespan;
+                visit.Departure += pushTimespan;
+            }
+
+            reusableTrip.TripStatus = TripStatus.New;
+
+            var creator = tripContext.Users.FirstOrDefault(c=>c.Id == reuseRequest.CreatorId);
+
+            reusableTrip.Creator = creator;
+
+            tripContext.Add(reusableTrip);
+            tripContext.SaveChanges();
+
+            return reusableTrip;
+        }
     }
 
     public class TripResponse
@@ -362,7 +400,7 @@ namespace LKOStest.Services
         {
             var reasons = new List<Reason>();
             var countryCode = searchService.GetCountryCode(visit.Location.Latitude, visit.Location.Longtitude).CountryCode;
-            var countryHolidays = searchService.SearchForHolidays(countryCode, DateTime.Now.Year.ToString());
+            var countryHolidays = searchService.SearchForHolidays(countryCode, DateTime.UtcNow.Year.ToString());
 
             //overlapping holidays check
             var hittingHolidays = countryHolidays.Where(h => h.Date > visit.Arrival && h.Date < visit.Departure).ToList();
@@ -378,16 +416,17 @@ namespace LKOStest.Services
             }
 
             //overlapping visits check
-            var hittingVisits = trip.Visits.Where(v => v.Arrival > visit.Arrival && v.Departure < visit.Departure
-                                                       || v.Departure > visit.Arrival && v.Departure < visit.Departure).ToList();
+            var hittingVisits = trip.Visits.Where(v => visit.Arrival > v.Arrival && visit.Arrival < v.Departure
+                                                       || visit.Departure > v.Arrival && visit.Departure < v.Departure
+                                                       || visit.Arrival < v.Arrival && visit.Departure > v.Departure).ToList();
 
             if (hittingVisits.Any())
             {
                 foreach (var v in hittingVisits)
                 {
                     reasons.Add(new Reason("2",
-                        $"Visit is overlapping another visit: {v.Id}",
-                        v.Id, true));
+                        $"Visit is overlapping with another visit: {v.Location.Title}",
+                        visit.Id, true));
                 }
             }
 
@@ -461,15 +500,15 @@ namespace LKOStest.Services
 
             var distanceMatrix = distanceMatrixService.GetDistance(visit.Location.Address, previousVisit.Location.Address);
 
-            var span = previousVisit.Arrival - visit.Departure;
+            var span = visit.Arrival - previousVisit.Departure;
             var totalMinutes = Convert.ToInt32(span.TotalMinutes);
-            var totalActualMinutes = distanceMatrix.rows.FirstOrDefault().elements.FirstOrDefault().duration.value;
+            var totalActualSeconds = distanceMatrix.rows.FirstOrDefault().elements.FirstOrDefault().duration.value;
 
             //add mandatory stops
-            var breakAmount = totalActualMinutes / 180;
+            var breakAmount = totalActualSeconds / 10800;
             var mandatoryActualSpan = span + TimeSpan.FromMinutes(15 * breakAmount);
-
-            if (totalActualMinutes > Convert.ToInt32(mandatoryActualSpan.TotalMinutes))
+            
+            if (totalActualSeconds / 60 > Convert.ToInt32(mandatoryActualSpan.TotalMinutes))
             {
                 reasons.Add(new Reason("3",
                     $"Impossible to drive in time from {previousVisit.Location.Address} to {visit.Location.Address}.",

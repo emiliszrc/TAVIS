@@ -11,7 +11,7 @@ namespace LKOStest.Interfaces
     public interface IReviewService
     {
         Review GetReview(string reviewId);
-        List<Review> GetReviewsByTripId(string tripId);
+        Review GetReviewsByTripId(string tripId);
         List<Review> GetNewReviewsByUserId(string userId);
         Review CreateReviewForTrip(ReviewRequest tripId, Models.TripValidity validity);
         Review PostReviewStatus(ReviewStatusRequest request);

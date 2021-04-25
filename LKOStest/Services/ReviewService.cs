@@ -291,7 +291,7 @@ namespace LKOStest.Services
             return review;
         }
 
-        public List<Review> GetReviewsByTripId(string tripId)
+        public Review GetReviewsByTripId(string tripId)
         {
             var reviews = tripContext.Reviews
                 .Include(r => r.Comments)
@@ -309,7 +309,11 @@ namespace LKOStest.Services
 
             reviews.ForEach(r => r.Comments.RemoveAll(c => c.ParentComment != null));
 
-            return reviews;
+            reviews = reviews.Where(r =>
+                r.Status != ReviewStatus.Approved || r.Status != ReviewStatus.Cancelled ||
+                r.Status != ReviewStatus.Rejected).ToList();
+
+            return reviews.FirstOrDefault();
         }
 
         public Review PostReviewStatus(ReviewStatusRequest request)
@@ -343,11 +347,11 @@ namespace LKOStest.Services
         {
             switch (requestReviewStatus)
             {
-                case ApprovalStatus.Rejecting:
-                    UpdateReviewToStatus(review.Id, ReviewStatus.Rejected);
+                case ApprovalStatus.NeedsWork:
                     break;
                 case ApprovalStatus.Cancelled:
-                    UpdateReviewToStatus(review.Id, ReviewStatus.Cancelled);
+                    review.Status = ReviewStatus.Cancelled;
+                    tripContext.Reviews.Update(review);
                     break;
                 case ApprovalStatus.Approved:
                 {
@@ -380,12 +384,12 @@ namespace LKOStest.Services
             {
                 case ReviewStatus.Cancelled:
                 case ReviewStatus.Approved:
-                case ReviewStatus.Rejected:
+                case ReviewStatus.NeedsWork:
                     break;
                 case ReviewStatus.New:
                     review.Status = approved;
                     var trip = review.Trip;
-                    trip.TripStatus = TripStatus.Final;
+                    trip.TripStatus = TripStatus.ReadyToFinalize;
                     tripContext.Reviews.Update(review);
                     tripContext.Trips.Update(trip);
                     tripContext.SaveChanges();

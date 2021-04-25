@@ -190,6 +190,15 @@ namespace LKOStest.Controllers
             return Ok(trip);
         }
 
+        [HttpPost]
+        [Route("{tripId}/Finalize")]
+        public IActionResult Finalize(string tripId, [FromQuery] string userId)
+        {
+            var trip = tripService.FinalizeTrip(tripId, userId);
+
+            return Ok(trip);
+        }
+
         [HttpGet]
         [Route("Validate/{tripId}")]
         public IActionResult ValidateTrip(string tripId)

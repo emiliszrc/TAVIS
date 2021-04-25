@@ -28,6 +28,7 @@ namespace LKOStest.Entities
     {
         New,
         InReview,
+        ReadyToFinalize,
         Final
     }
 }

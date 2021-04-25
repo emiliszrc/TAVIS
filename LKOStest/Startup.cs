@@ -67,7 +67,6 @@ namespace LKOStest
             });
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseAuthorization();

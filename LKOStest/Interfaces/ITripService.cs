@@ -30,5 +30,6 @@ namespace LKOStest.Interfaces
         public List<Trip> GetFinalTrips(string userId);
         public void RestoreStatuses();
         public Trip ReuseTrip(string tripId, ReuseRequest reuseRequest);
+        public Trip FinalizeTrip(string tripId, string userId);
     }
 }

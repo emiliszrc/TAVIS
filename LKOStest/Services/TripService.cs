@@ -170,9 +170,9 @@ namespace LKOStest.Services
             var visit = tripContext.Visits.FirstOrDefault(v => v.Id == visitId);
             var x = visitRequest.Arrival.ToLocalTime();
             var z = visitRequest.Arrival.ToUniversalTime();
-            var y = visitRequest.Arrival.AddHours(3);
-            visit.Arrival = visitRequest.Arrival.AddHours(3);
-            visit.Departure = visitRequest.Departure.AddHours(3);
+            var y = visitRequest.Arrival;//.AddHours(3);
+            visit.Arrival = visitRequest.Arrival;//.AddHours(3);
+            visit.Departure = visitRequest.Departure;//.AddHours(3);
             visit.Location = tripContext.Locations.FirstOrDefault(l => l.Id == visitRequest.LocationId);
 
             tripContext.Visits.Update(visit);
@@ -284,6 +284,22 @@ namespace LKOStest.Services
                     tripContext.SaveChanges();
                 }
             }
+        }
+
+        public Trip FinalizeTrip(string tripId, string userId)
+        {
+            var trip = GetTrip(tripId);
+
+            if (trip.Creator.Id != userId)
+            {
+                throw new Exception("Finalizer is not the creator");
+            }
+
+            trip.TripStatus = TripStatus.Final;
+            tripContext.Trips.Update(trip);
+            tripContext.SaveChanges();
+
+            return GetTrip(trip.Id);
         }
 
         public Trip ReuseTrip(string tripId, ReuseRequest reuseRequest)
@@ -521,9 +537,6 @@ namespace LKOStest.Services
                     $"Cannot drive longer than 16 hours due to regulations. From {previousVisit.Location.Address} to {visit.Location.Address}.",
                     visit.Id, true));
             }
-
-
-
 
             return reasons;
         }

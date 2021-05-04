@@ -60,10 +60,18 @@ namespace LKOStest.Controllers
 
             if (existingClient != null)
             {
-                return BadRequest("Client already exists");
+                if (existingClient.Participations.Any(p => p.Trip.Id == request.TripId))
+                {
+                    return BadRequest("Client already invited to trip");
+                }
+                else
+                {
+                    _clientsService.AssignTripToClient(existingClient.Id, request.TripId);
+                    return Ok(_clientsService.GetClientsForTrip(request.TripId));
+                }
             }
 
-            var password = PasswordGenerator.GetUniqueKey(9);
+            var password = PasswordGenerator.GetUniqueKey(4);
 
             var clientRequest = new ClientRequest
             {
@@ -111,7 +119,15 @@ namespace LKOStest.Controllers
                 TripTitle = trip.Title
             };
 
-            var success = _emailService.SendEmail(emailRequest);
+            var success = false;
+            if (string.IsNullOrEmpty(emailRequest.GeneratedPassword))
+            {
+                success = _emailService.SendAfterLogin(emailRequest);
+            }
+            else
+            {
+                success = _emailService.SendEmail(emailRequest);
+            }
 
             var email = new SentEmail
             {

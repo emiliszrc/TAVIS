@@ -76,7 +76,10 @@ namespace LKOStest.Controllers
 
         public Client GetClientByEmail(string requestEmail)
         {
-            return _tripContext.Clients.FirstOrDefault(client => client.Email == requestEmail);
+            return _tripContext.Clients
+                .Include(c=>c.Participations)
+                .ThenInclude(p=>p.Trip)
+                .FirstOrDefault(client => client.Email == requestEmail);
         }
 
         public Checkin CheckinToVisit(CheckinRequest request)

@@ -157,6 +157,13 @@ namespace LKOStest.Controllers
             return Ok();
         }
 
+        [HttpPost("{clientId}/PostFeedback/{visitId}")]
+        public IActionResult Feedback(string clientId, string visitId, [FromBody] FeedbackRequest request)
+        {
+            _clientsService.PostFeedback(request);
+            return Ok();
+        }
+
         [HttpPost("{id}/SetPassword")]
         public IActionResult SetPassword(string id, [FromBody] PasswordRequest passwordRequest)
         {
@@ -251,6 +258,8 @@ namespace LKOStest.Controllers
         public string TripId { get; set; }
         public string VisitId { get; set; }
         public string UserId { get; set; }
+        public string Text { get; set; }
+        public int Rating { get; set; }
     }
 
     public class ClientRequest

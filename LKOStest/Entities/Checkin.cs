@@ -15,5 +15,6 @@ namespace LKOStest.Entities
         public Visit Visit { get; set; }
         public Client Client { get; set; }
         public string Feedback { get; set; }
+        public int Rating { get; set; }
     }
 }

@@ -109,7 +109,16 @@ namespace LKOStest.Controllers
 
         public Checkin PostFeedback(FeedbackRequest request)
         {
-            throw new NotImplementedException();
+            var checkin = _tripContext.Checkins.FirstOrDefault(c => 
+                c.Visit.Id == request.VisitId 
+                && c.Client.Id == request.UserId);
+
+            checkin.Feedback = request.Text;
+            checkin.Rating = request.Rating;
+            _tripContext.Checkins.Update(checkin);
+            _tripContext.SaveChanges();
+
+            return checkin;
         }
 
         public Client SetPassword(PasswordRequest passwordRequest)
